@@ -64,6 +64,8 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 _LOGGER = logging.getLogger(__name__)
 
+MESSAGE_CONTROL_VALUES = ("assign", "resolve", "attach")
+
 SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required("message"): cv.string,
@@ -75,6 +77,10 @@ SERVICE_SCHEMA = vol.Schema(
         vol.Optional("entry_id"): cv.string,
         vol.Exclusive("image_entity", "image_source"): cv.entity_id,
         vol.Exclusive("image_url", "image_source"): cv.string,
+        vol.Optional("controls", default=[]): vol.All(
+            cv.ensure_list,
+            [vol.In(MESSAGE_CONTROL_VALUES)],
+        ),
         vol.Optional("extras"): dict,
     }
 )
@@ -141,6 +147,25 @@ MONITA_SEND_DESCRIPTION: dict[str, Any] = {
             ),
             "required": False,
             "selector": {"text": {"type": "url"}},
+        },
+        "controls": {
+            "name": "Message controls",
+            "description": (
+                "Choose which collaboration controls this message exposes in Monita. "
+                "Leave empty for a normal notification."
+            ),
+            "required": False,
+            "default": [],
+            "selector": {
+                "select": {
+                    "multiple": True,
+                    "options": [
+                        {"value": "assign", "label": "Assign to Me"},
+                        {"value": "resolve", "label": "Resolve"},
+                        {"value": "attach", "label": "Attach"},
+                    ],
+                }
+            },
         },
         "extras": {
             "name": "Monita extras",
@@ -272,11 +297,13 @@ def _resolve_push_target(
     call: ServiceCall,
 ) -> tuple[GotifyMUConfigEntry, int]:
     """Resolve the selected server entry and destination Channel."""
-    loaded = [
-        entry
-        for entry in hass.config_entries.async_entries(DOMAIN)
-        if entry.state is ConfigEntryState.LOADED
-    ]
+    candidate_domains = tuple(dict.fromkeys((DOMAIN, SERVICE_DOMAIN, LEGACY_SERVICE_DOMAIN)))
+    loaded_by_id: dict[str, GotifyMUConfigEntry] = {}
+    for candidate_domain in candidate_domains:
+        for entry in hass.config_entries.async_entries(candidate_domain):
+            if entry.state is ConfigEntryState.LOADED:
+                loaded_by_id.setdefault(entry.entry_id, entry)
+    loaded = list(loaded_by_id.values())
     if not loaded:
         raise ServiceValidationError("No loaded Monita server is configured")
 
@@ -291,7 +318,7 @@ def _resolve_push_target(
         registry_entry = er.async_get(hass).async_get(channel_entity)
         if (
             registry_entry is None
-            or registry_entry.platform != DOMAIN
+            or registry_entry.platform not in candidate_domains
             or registry_entry.domain != "notify"
             or not registry_entry.config_entry_id
         ):
@@ -448,6 +475,16 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
         )
         extras[INTEGRATION_ORIGIN_EXTRA] = origin
 
+        controls = [
+            value
+            for value in call.data.get("controls", [])
+            if value in MESSAGE_CONTROL_VALUES
+        ]
+        if controls:
+            extras["monita::controls"] = controls
+        else:
+            extras.pop("monita::controls", None)
+
         use_client_route = bool(runtime.client.client_token)
         legacy_image_route = bool(
             runtime.client.app_token
@@ -491,6 +528,30 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
                             )
                         )
                     )
+
+                    # Capabilities are normally loaded with the config entry, but
+                    # the Monita server may have been upgraded without reloading
+                    # Home Assistant. Refresh once before dropping an image so a
+                    # newly upgraded server can accept it immediately.
+                    if not direct_images_supported:
+                        refreshed = await runtime.client.async_capabilities()
+                        if isinstance(refreshed, dict):
+                            runtime.capabilities = refreshed
+                            features = refreshed.get("features", {})
+                            direct_images_supported = bool(
+                                isinstance(features, dict)
+                                and (
+                                    (
+                                        channel_type == "chat"
+                                        and features.get("chatImages") is True
+                                    )
+                                    or (
+                                        channel_type != "chat"
+                                        and features.get("notificationImages") is True
+                                    )
+                                )
+                            )
+
                     if direct_images_supported:
                         direct_extras = dict(extras)
                         if call.data.get("markdown", False):
