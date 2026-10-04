@@ -1,18 +1,16 @@
-"""Home Assistant repair issue helpers for Monita."""
+"""Legacy-domain Repairs compatibility shim for Monita."""
 
 from __future__ import annotations
 
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import issue_registry as ir
 
+from custom_components.monita.repairs import (
+    NATIVE_BRIDGE_AUTH_ISSUE,
+    native_bridge_issue_id,
+)
+
 from .const import DOMAIN
-
-NATIVE_BRIDGE_AUTH_ISSUE = "native_bridge_auth_failed"
-
-
-def native_bridge_issue_id(entry_id: str) -> str:
-    """Return the repair issue ID for one config entry."""
-    return f"{NATIVE_BRIDGE_AUTH_ISSUE}_{entry_id}"
 
 
 @callback
@@ -22,7 +20,7 @@ def async_create_native_bridge_repair_issue(
     entry_id: str,
     name: str,
 ) -> None:
-    """Create an actionable repair issue for a rejected native bridge secret."""
+    """Create a repair issue under the historical integration domain."""
     ir.async_create_issue(
         hass,
         DOMAIN,
@@ -45,5 +43,12 @@ def async_delete_native_bridge_repair_issue(
     hass: HomeAssistant,
     entry_id: str,
 ) -> None:
-    """Delete a native bridge repair issue if it exists."""
+    """Delete a legacy-domain native bridge repair issue if it exists."""
     ir.async_delete_issue(hass, DOMAIN, native_bridge_issue_id(entry_id))
+
+
+__all__ = [
+    "async_create_native_bridge_repair_issue",
+    "async_delete_native_bridge_repair_issue",
+    "native_bridge_issue_id",
+]
