@@ -3,11 +3,11 @@
 <p align="center">
   <img src="branding/MonitaHomeAssistant_Full-01.svg" alt="Monita for Home Assistant" width="720"><br>
   <strong>Monita for Home Assistant</strong><br>
-  <em>formerly Gotify-MU for Home Assistant</em>
+  <em>formerly Monita for Home Assistant</em>
 </p>
 
 
-A Home Assistant custom integration for **Monita**, the successor to Gotify-MU. It connects Home Assistant directly to the self-hosted Monita notification, messaging, and automation platform.
+A Home Assistant custom integration for **Monita**, the successor to Monita. It connects Home Assistant directly to the self-hosted Monita notification, messaging, and automation platform.
 
 It provides native Home Assistant notification entities for Monita Channels, image notifications, optional realtime inbound Channel messages, and an authenticated native event bridge for two-way automations.
 
@@ -25,7 +25,7 @@ Companion client:
 
 - **[Complete Feature & Usage Guide](docs/FEATURES.md)** — configuration, every supported feature, image-notification behavior, examples, security, troubleshooting-oriented health information, and credential requirements.
 - **[Changelog](CHANGELOG.md)** — version-by-version changes and compatibility notes.
-- **[Monita Rebrand & Upgrade Guide](docs/REBRANDING.md)** — explains the Gotify-MU → Monita transition and which technical identifiers intentionally remain unchanged.
+- **[Monita Rebrand & Upgrade Guide](docs/REBRANDING.md)** — explains the Monita → Monita transition and which technical identifiers intentionally remain unchanged.
 
 The README covers installation and the most common workflows. The complete guide is the canonical reference for all supported functionality. The SVG files under `branding/` are the authoritative Monita for Home Assistant artwork. Required PNG copies are direct raster renders of those SVG masters.
 
@@ -53,7 +53,7 @@ The README covers installation and the most common workflows. The complete guide
 - Config-entry diagnostics with credentials redacted
 - TLS verification control for private/self-signed deployments
 - HACS-compatible repository layout
-- Legacy fallback for Gotify-compatible servers without the MU identity endpoint
+- Legacy fallback for Monita-compatible servers without the MU identity endpoint
 
 ### Feature documentation map
 
@@ -78,7 +78,7 @@ Every user-facing feature above is documented in the [Complete Feature & Usage G
 
 ## Rebrand and upgrade compatibility
 
-**Monita for Home Assistant was formerly Gotify-MU for Home Assistant.** The rebrand is intentionally non-destructive.
+**Monita for Home Assistant was formerly Monita for Home Assistant.** The rebrand is intentionally non-destructive.
 
 Monita now has its own canonical Home Assistant identity:
 
@@ -88,7 +88,7 @@ Monita now has its own canonical Home Assistant identity:
 
 Existing installations that were created under the historical domain continue to load through a compatibility component so upgrades do not break stored config entries, entity unique IDs, credentials, or existing automations. New installations use `monita` only. The compatibility component is not the canonical Monita implementation and can be removed in a future major release after migration coverage is complete.
 
-The underlying HTTP/WebSocket API remains Gotify-compatible where documented. References to Gotify in protocol field names or compatibility notes are technical compatibility references, not the active product name.
+The underlying HTTP/WebSocket API remains Monita-compatible where documented. References to Monita in protocol field names or compatibility notes are technical compatibility references, not the active product name.
 
 ## Requirements
 
@@ -275,7 +275,7 @@ action:
       image_url: "https://camera.example.com/current.jpg"
 ```
 
-The integration downloads the URL inside Home Assistant, validates that the response is a supported image, enforces a 10 MiB maximum, and uploads the bytes to Monita. JPEG, PNG, GIF, and WebP are supported. The original URL is not forwarded to the phone or written into Gotify extras. `image_entity` and `image_url` are mutually exclusive.
+The integration downloads the URL inside Home Assistant, validates that the response is a supported image, enforces a 10 MiB maximum, and uploads the bytes to Monita. JPEG, PNG, GIF, and WebP are supported. The original URL is not forwarded to the phone or written into Monita extras. `image_entity` and `image_url` are mutually exclusive.
 
 For the complete image lifecycle, security behavior, failure semantics, use cases, and compatibility requirements, see [Image notifications](docs/FEATURES.md#5-image-notifications).
 
@@ -296,7 +296,7 @@ Each incoming message from a selected Channel updates the integration's **Messag
 - date
 - sender user ID
 - sender name
-- Gotify extras
+- Monita extras
 
 The integration also creates an **Inbound connection** binary sensor. Its attributes expose reconnect count and the most recent stream error.
 
@@ -312,7 +312,7 @@ New server-centric connections validate the client token against Monita's curren
 
 Monita returns Channel role information with that list. Home Assistant uses it to distinguish push-capable Channels from read-only Channels.
 
-Legacy application-token entries continue using the application identity endpoint and safe Gotify-compatible fallback introduced in earlier releases.
+Legacy application-token entries continue using the application identity endpoint and safe Monita-compatible fallback introduced in earlier releases.
 
 ## Reauthentication and reconfiguration
 
@@ -344,11 +344,11 @@ If Monita rejects the stored native bridge credential, the integration creates a
 
 ## Compatibility
 
-For server-centric connections, Push Message uses Monita's Gotify-compatible message endpoint with the client token and the selected Channel ID:
+For server-centric connections, Push Message uses Monita's Monita-compatible message endpoint with the client token and the selected Channel ID:
 
 ```text
 POST /message
-X-Gotify-Key: <client-token>
+X-Monita-Key: <client-token>
 
 {
   "appid": <selected-channel-id>,
@@ -360,13 +360,13 @@ Image notifications additionally use Monita's staged attachment endpoint:
 
 ```text
 POST /application/current/attachment
-X-Gotify-Key: <application-token>
+X-Monita-Key: <application-token>
 Content-Type: multipart/form-data
 ```
 
-The returned staged attachment ID is supplied to `POST /message` as `attachmentIds`. The integration does not invent public media URLs or manually build `gotify-mu::display.images` / `client::notification.bigImageUrl`; Monita owns that canonical contract.
+The returned staged attachment ID is supplied to `POST /message` as `attachmentIds`. The integration does not invent public media URLs or manually build `monita::display.images` / `client::notification.bigImageUrl`; Monita owns that canonical contract.
 
-Monita-specific capabilities are additive. Text-only outbound operation remains compatible with Gotify-style servers that do not expose the MU identity or staged attachment endpoints.
+Monita-specific capabilities are additive. Text-only outbound operation remains compatible with Monita-style servers that do not expose the MU identity or staged attachment endpoints.
 
 ## Development
 

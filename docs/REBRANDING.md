@@ -1,6 +1,6 @@
 # Monita for Home Assistant rebrand
 
-**Monita for Home Assistant** is the new product name for **Gotify-MU for Home Assistant**.
+**Monita for Home Assistant** is the new product name for **Monita for Home Assistant**.
 
 This rebrand is designed as an in-place upgrade, not a replacement integration.
 
@@ -14,7 +14,7 @@ This rebrand is designed as an in-place upgrade, not a replacement integration.
 - documentation and examples: **Monita**
 - approved visual identity: the supplied Monita for Home Assistant branding
 
-During the transition, documentation may include **formerly Gotify-MU for Home Assistant** to make the rename clear to existing users.
+During the transition, documentation may include **formerly Monita for Home Assistant** to make the rename clear to existing users.
 
 ## What intentionally does not change in 1.3.0
 
@@ -26,7 +26,7 @@ The following technical identifiers are compatibility contracts and remain uncha
 | `custom_components/monita` | Canonical | Active Monita custom component implementation |
 | `monita.send` | Canonical | Monita automation/action namespace |
 | historical integration domain | Compatibility only | Keeps config entries created before the canonical Monita domain loadable during migration |
-| `homeassistant::gotify_mu` | Compatibility only | Accepted only for historical loop-prevention metadata; new messages use `homeassistant::monita` |
+| `homeassistant::monita` | Compatibility only | Accepted only for historical loop-prevention metadata; new messages use `homeassistant::monita` |
 | Stored config entries | Retained | No delete/re-add process |
 | Entity unique IDs | Retained | Dashboards and automations keep their entity registry relationships |
 | Application/client tokens | Retained | No credential reset solely because of the rename |
@@ -54,9 +54,9 @@ The Home Assistant action editor and technical action ID are both Monita-native:
 
 Monita continues to use the established compatible HTTP/WebSocket contracts used by this integration.
 
-Documentation retains the word **Gotify** only when it is technically necessary to describe:
+Documentation retains the word **Monita** only when it is technically necessary to describe:
 
-- upstream/legacy Gotify API compatibility
+- upstream/legacy Monita API compatibility
 - an established API header or wire-format convention
 - legacy product/version history in the changelog
 - compatibility identifiers that cannot be renamed without breaking upgrades

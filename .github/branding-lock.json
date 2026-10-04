@@ -22,11 +22,9 @@
   "aliases": {
     "custom_components/monita/brand/icon.png": "custom_components/monita/brand/monita-ha-icon.png",
     "custom_components/monita/brand/logo.png": "custom_components/monita/brand/monita-ha-logo.png",
-    "custom_components/gotify_mu/brand/monita-ha-icon.png": "custom_components/monita/brand/monita-ha-icon.png",
-    "custom_components/gotify_mu/brand/icon.png": "custom_components/monita/brand/monita-ha-icon.png",
+    "custom_components/monita/brand/monita-ha-icon.png": "custom_components/monita/brand/monita-ha-icon.png",
     "icon.png": "custom_components/monita/brand/monita-ha-icon.png",
-    "custom_components/gotify_mu/brand/monita-ha-logo.png": "custom_components/monita/brand/monita-ha-logo.png",
-    "custom_components/gotify_mu/brand/logo.png": "custom_components/monita/brand/monita-ha-logo.png",
+    "custom_components/monita/brand/monita-ha-logo.png": "custom_components/monita/brand/monita-ha-logo.png",
     "logo.png": "custom_components/monita/brand/monita-ha-logo.png"
   }
 }
