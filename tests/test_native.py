@@ -1,4 +1,4 @@
-"""Tests for Gotify MU native Home Assistant pairing and event bridging."""
+"""Tests for Monita native Home Assistant pairing and event bridging."""
 
 from __future__ import annotations
 
@@ -202,7 +202,7 @@ async def test_native_pairing_errors(hass, aioclient_mock, status, reason):
 
 
 async def test_native_repair_replaces_only_native_credentials(hass, aioclient_mock):
-    """Repairing native pairing preserves the normal Gotify MU integration."""
+    """Repairing native pairing preserves the normal Monita integration."""
     entry = _entry(paired=True)
     entry.add_to_hass(hass)
     aioclient_mock.post(
@@ -244,7 +244,7 @@ async def test_native_repair_replaces_only_native_credentials(hass, aioclient_mo
 
 
 async def test_native_remove_revokes_remote_bridge(hass, aioclient_mock):
-    """Removing native pairing revokes Gotify MU before clearing local credentials."""
+    """Removing native pairing revokes Monita before clearing local credentials."""
     entry = _entry(paired=True)
     entry.add_to_hass(hass)
     aioclient_mock.delete(REVOKE_URL, status=204)
@@ -270,7 +270,7 @@ async def test_native_remove_revokes_remote_bridge(hass, aioclient_mock):
 
 
 async def test_native_remove_requires_force_when_revoke_fails(hass, aioclient_mock):
-    """Remote revoke failures do not silently leave stale credentials on Gotify MU."""
+    """Remote revoke failures do not silently leave stale credentials on Monita."""
     entry = _entry(paired=True)
     entry.add_to_hass(hass)
     aioclient_mock.delete(REVOKE_URL, status=401)
@@ -339,7 +339,7 @@ async def test_native_webhook_rejects_invalid_bearer(hass, hass_client):
 
 
 async def test_native_webhook_fires_home_assistant_event(hass, hass_client):
-    """A valid Gotify MU webhook payload is emitted onto the HA event bus."""
+    """A valid Monita webhook payload is emitted onto the HA event bus."""
     assert await async_setup_component(hass, "webhook", {})
     client = await hass_client()
     received = []
@@ -361,13 +361,13 @@ async def test_native_webhook_fires_home_assistant_event(hass, hass_client):
             headers={"Authorization": f"Bearer {SHARED_SECRET}"},
             json={
                 "eventType": "gotify_mu_test",
-                "data": {"message": "Gotify MU connection test"},
+                "data": {"message": "Monita connection test"},
             },
         )
         await hass.async_block_till_done()
         assert response.status == 200
         assert len(received) == 1
-        assert received[0].data == {"message": "Gotify MU connection test"}
+        assert received[0].data == {"message": "Monita connection test"}
         assert bridge.status == "connected"
         assert bridge.last_received_at is not None
     finally:
@@ -375,7 +375,7 @@ async def test_native_webhook_fires_home_assistant_event(hass, hass_client):
 
 
 async def test_home_assistant_event_bus_posts_to_gotify_mu(hass, aioclient_mock):
-    """A real HA event-bus event is authenticated and posted to Gotify MU."""
+    """A real HA event-bus event is authenticated and posted to Monita."""
     aioclient_mock.post(EVENT_URL, status=202)
     bridge = GotifyMUNativeBridge(
         hass,
@@ -427,7 +427,7 @@ async def test_native_event_delivery_retries_transient_failure(hass):
             _NativeDeliveryResult(
                 success=False,
                 retryable=True,
-                error="Gotify MU returned HTTP 503 for native event delivery",
+                error="Monita returned HTTP 503 for native event delivery",
             ),
             _NativeDeliveryResult(success=True),
         ]
