@@ -1,0 +1,47 @@
+name: Monita Home Assistant identity audit
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  identity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reject legacy-named paths outside compatibility component
+        shell: bash
+        run: |
+          set -euo pipefail
+          matches="$(find . -path './.git' -prune -o -type f -print             | sed 's#^./##'             | grep -Ei 'gotify[-_ ]?mu|gotify_mu'             | grep -v '^custom_components/gotify_mu/' || true)"
+          if [ -n "$matches" ]; then
+            printf '%s\n' "$matches"
+            echo "::error::Legacy HA identity remains in active paths outside the required compatibility component."
+            exit 1
+          fi
+
+      - name: Reject stale active product branding
+        shell: bash
+        run: |
+          set -euo pipefail
+          matches="$(git grep -nI -E 'Gotify[ -]MU|Gotify-MU' -- .             ':!CHANGELOG.md' ':!README.md' ':!docs/**' ':!custom_components/gotify_mu/**'             ':!.github/workflows/monita-ha-identity-audit.yml' || true)"
+          if [ -n "$matches" ]; then
+            printf '%s\n' "$matches"
+            echo "::error::Stale Gotify-MU product branding remains in active Monita HA code."
+            exit 1
+          fi
+
+      - name: Enforce exhaustive legacy identifier allowlist
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(mktemp)"
+          expected="$(mktemp)"
+          git grep -Il -i -E 'gotify' -- .             ':!.github/legacy-identity-allowlist.txt'             ':!.github/workflows/monita-ha-identity-audit.yml'             | sort > "$actual" || true
+          sort .github/legacy-identity-allowlist.txt | sed '/^[[:space:]]*$/d' > "$expected"
+          if ! diff -u "$expected" "$actual"; then
+            echo "::error::Home Assistant legacy identity inventory changed. Every remaining Gotify reference must be explicitly reviewed as config-entry migration, protocol compatibility, history, attribution, or legacy-domain support."
+            exit 1
+          fi

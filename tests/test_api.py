@@ -1,4 +1,4 @@
-"""API regression tests for Gotify MU attachment publishing."""
+"""API regression tests for Monita attachment publishing."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from typing import Any
 from aiohttp import FormData
 from yarl import URL
 
-from custom_components.gotify_mu.api import GotifyMUClient
+from custom_components.gotify_mu.api import MonitaClient
 
 SERVER = "https://push.example.test"
 APP_TOKEN = "app-secret"
@@ -59,7 +59,7 @@ class _FakeSession:
 async def test_text_only_send_payload_is_unchanged():
     """Text-only sends do not gain attachment fields."""
     session = _FakeSession([{"id": 1}])
-    client = GotifyMUClient(session, SERVER, APP_TOKEN)
+    client = MonitaClient(session, SERVER, APP_TOKEN)
 
     await client.async_send(
         "Door opened",
@@ -85,7 +85,7 @@ async def test_upload_image_uses_application_token_and_multipart_form():
     session = _FakeSession(
         [{"id": 123, "filename": "front-door.jpg", "contentType": "image/jpeg"}]
     )
-    client = GotifyMUClient(session, SERVER, APP_TOKEN)
+    client = MonitaClient(session, SERVER, APP_TOKEN)
     image = b"\xff\xd8\xff\xe0jpeg"
 
     attachment = await client.async_upload_image(
@@ -108,7 +108,7 @@ async def test_upload_image_uses_application_token_and_multipart_form():
 async def test_send_includes_attachment_ids_and_preserves_markdown_extras():
     """Staged IDs are additive to priority, Markdown, and caller extras."""
     session = _FakeSession([{"id": 2}])
-    client = GotifyMUClient(session, SERVER, APP_TOKEN)
+    client = MonitaClient(session, SERVER, APP_TOKEN)
 
     await client.async_send(
         "**Person detected**",
@@ -135,7 +135,7 @@ async def test_send_includes_attachment_ids_and_preserves_markdown_extras():
 async def test_client_token_send_routes_to_selected_channel():
     """Server-centric sends use the client token and appid Channel routing."""
     session = _FakeSession([{"id": 3}])
-    client = GotifyMUClient(
+    client = MonitaClient(
         session,
         SERVER,
         "",
@@ -163,13 +163,13 @@ async def test_client_token_send_routes_to_selected_channel():
 
 def test_channel_post_permissions_follow_monita_roles():
     """Channel metadata distinguishes push-capable and read-only roles."""
-    assert GotifyMUClient._parse_channel(
+    assert MonitaClient._parse_channel(
         {"id": 1, "name": "Owner", "role": "owner"}
     ).can_post
-    assert GotifyMUClient._parse_channel(
+    assert MonitaClient._parse_channel(
         {"id": 2, "name": "Publisher", "role": "publisher"}
     ).can_post
-    assert GotifyMUClient._parse_channel(
+    assert MonitaClient._parse_channel(
         {
             "id": 3,
             "name": "Member",
@@ -177,14 +177,14 @@ def test_channel_post_permissions_follow_monita_roles():
             "allowMemberPost": True,
         }
     ).can_post
-    assert not GotifyMUClient._parse_channel(
+    assert not MonitaClient._parse_channel(
         {"id": 4, "name": "Read only", "role": "readonly"}
     ).can_post
 
 async def test_capabilities_discovers_chat_images():
     """Server-centric setup discovers first-class Chat image support."""
     session = _FakeSession([{"features": {"chatImages": True}}])
-    client = GotifyMUClient(session, SERVER, "", True, "client-secret")
+    client = MonitaClient(session, SERVER, "", True, "client-secret")
 
     capabilities = await client.async_capabilities()
 
@@ -198,7 +198,7 @@ async def test_capabilities_discovers_chat_images():
 async def test_chat_image_send_uses_client_token_and_multipart():
     """Chat images use the Channel-scoped multipart endpoint."""
     session = _FakeSession([{"id": 9, "appid": 8, "message": "Person detected"}])
-    client = GotifyMUClient(session, SERVER, "", True, "client-secret")
+    client = MonitaClient(session, SERVER, "", True, "client-secret")
 
     result = await client.async_send_chat_image(
         "Person detected",
@@ -224,7 +224,7 @@ async def test_capabilities_returns_chat_image_feature():
     session = _FakeSession(
         [{"product": "gotify-mu", "features": {"chatImages": True}}]
     )
-    client = GotifyMUClient(session, SERVER, "", True, "client-secret")
+    client = MonitaClient(session, SERVER, "", True, "client-secret")
 
     capabilities = await client.async_capabilities()
 
@@ -238,7 +238,7 @@ async def test_capabilities_returns_chat_image_feature():
 async def test_send_chat_image_uses_client_token_and_multipart():
     """A Chat image is posted directly to the selected Channel."""
     session = _FakeSession([{"id": 55, "appid": 8}])
-    client = GotifyMUClient(session, SERVER, "", True, "client-secret")
+    client = MonitaClient(session, SERVER, "", True, "client-secret")
     image = b"\xff\xd8\xff\xe0jpeg"
 
     result = await client.async_send_chat_image(
