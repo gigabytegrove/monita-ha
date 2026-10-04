@@ -1,4 +1,4 @@
-"""Image acquisition regression tests for Gotify MU."""
+"""Image acquisition regression tests for Monita."""
 
 from __future__ import annotations
 
