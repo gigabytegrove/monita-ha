@@ -29,12 +29,10 @@ render(FULL, CANON_LOGO, 1413, 512)
 aliases = {
     CANON_ICON: [
         ROOT / "custom_components" / "monita" / "brand" / "icon.png",
-        ROOT / "custom_components" / "monita" / "brand" / "monita-ha-icon.png",
         ROOT / "icon.png",
     ],
     CANON_LOGO: [
         ROOT / "custom_components" / "monita" / "brand" / "logo.png",
-        ROOT / "custom_components" / "monita" / "brand" / "monita-ha-logo.png",
         ROOT / "logo.png",
     ],
 }
