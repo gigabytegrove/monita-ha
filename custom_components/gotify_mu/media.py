@@ -1,4 +1,4 @@
-"""Legacy-domain image helper compatibility aliases for Monita."""
+"""Legacy-domain image helper re-export for Monita."""
 
 from custom_components.monita.media import (
     IMAGE_DOWNLOAD_TIMEOUT_SECONDS,
@@ -8,10 +8,8 @@ from custom_components.monita.media import (
     async_acquire_url_image,
 )
 
-GotifyMUImage = MonitaImage
-
 __all__ = [
-    "GotifyMUImage",
+    "MonitaImage",
     "IMAGE_DOWNLOAD_TIMEOUT_SECONDS",
     "MAX_IMAGE_BYTES",
     "async_acquire_entity_image",
