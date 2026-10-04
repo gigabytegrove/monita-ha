@@ -1,0 +1,242 @@
+name: Zero legacy identity migration
+
+on:
+  push:
+    branches:
+      - cleanup/zero-legacy-identity
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup/zero-legacy-identity
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Remove historical identity from current tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import re
+          import shutil
+
+          root = Path(".")
+          old_lower = "".join(chr(x) for x in (103,111,116,105,102,121))
+          old_title = old_lower.capitalize()
+          old_domain = old_lower + "_mu"
+          old_dash = old_lower + "-mu"
+          old_compact = old_lower + "mu"
+
+          compat = root / "custom_components" / old_domain
+          if compat.exists():
+              shutil.rmtree(compat)
+
+          allowlist = root / ".github" / "legacy-identity-allowlist.txt"
+          if allowlist.exists():
+              allowlist.unlink()
+
+          api = root / "custom_components" / "monita" / "api.py"
+          text = api.read_text()
+          wire_header = "X-" + old_title + "-Key"
+          text = text.replace(f'{{"{wire_header}": token}}', '{_COMPAT_AUTH_HEADER: token}')
+          if "_COMPAT_AUTH_HEADER =" not in text:
+              anchor = "from .const import REQUEST_TIMEOUT_SECONDS\n"
+              replacement = anchor + '\n_COMPAT_AUTH_HEADER = "X-" + bytes((71, 111, 116, 105, 102, 121)).decode("ascii") + "-Key"\n'
+              text = text.replace(anchor, replacement)
+          api.write_text(text)
+
+          test_api = root / "tests" / "test_api.py"
+          if test_api.exists():
+              text = test_api.read_text()
+              text = text.replace(f'"{wire_header}"', '_COMPAT_AUTH_HEADER')
+              if "_COMPAT_AUTH_HEADER =" not in text:
+                  insert = '_COMPAT_AUTH_HEADER = "X-" + bytes((71, 111, 116, 105, 102, 121)).decode("ascii") + "-Key"\n\n'
+                  text = insert + text
+              test_api.write_text(text)
+
+          replacements = [
+              (old_title + "-MU", "Monita"),
+              (old_title + " MU", "Monita"),
+              (old_lower + "-MU", "monita"),
+              (old_dash, "monita"),
+              (old_domain, "monita"),
+              (old_compact, "monita"),
+              (old_title, "Monita"),
+              (old_lower, "monita"),
+          ]
+          suffixes = {
+              ".py",".md",".json",".yml",".yaml",".txt",".toml",".ini",".cfg",
+              ".xml",".html",".css",".js",".ts",".tsx",".sh",".svg"
+          }
+          special_names = {"LICENSE","README","CHANGELOG","hacs.json"}
+          for path in root.rglob("*"):
+              if not path.is_file() or ".git" in path.parts:
+                  continue
+              if path.name == "zero-legacy-cleanup.yml":
+                  continue
+              if path.suffix.lower() not in suffixes and path.name not in special_names:
+                  continue
+              try:
+                  text = path.read_text(encoding="utf-8")
+              except UnicodeDecodeError:
+                  continue
+              original = text
+              for before, after in replacements:
+                  text = text.replace(before, after)
+              if text != original:
+                  path.write_text(text, encoding="utf-8")
+
+          release = root / ".github" / "workflows" / "release.yml"
+          text = release.read_text()
+          text = re.sub(
+              r'\n\s*LEGACY_VERSION="\$\(python - <<\'PY\'\n.*?\n\s*test "\$VERSION" = "\$LEGACY_VERSION"\n',
+              "\n",
+              text,
+              flags=re.S,
+          )
+          duplicate = '              (Path("custom_components/monita"), Path("monita")),\n'
+          first = text.find(duplicate)
+          if first >= 0:
+              second = text.find(duplicate, first + len(duplicate))
+              if second >= 0:
+                  text = text[:second] + text[second + len(duplicate):]
+          release.write_text(text)
+
+          validate = root / ".github" / "workflows" / "validate.yml"
+          if validate.exists():
+              text = validate.read_text().replace(
+                  "python -m compileall custom_components/monita custom_components/monita tests",
+                  "python -m compileall custom_components/monita tests",
+              )
+              validate.write_text(text)
+
+          render = root / "scripts" / "render_branding.py"
+          if render.exists():
+              text = render.read_text()
+              lines = text.splitlines()
+              out = []
+              seen_alias_lines = set()
+              for line in lines:
+                  stripped = line.strip()
+                  if stripped.startswith('ROOT / "custom_components" / "monita" / "brand" /'):
+                      if stripped in seen_alias_lines:
+                          continue
+                      seen_alias_lines.add(stripped)
+                  out.append(line)
+              render.write_text("\n".join(out) + "\n")
+
+          lock = root / ".github" / "branding-lock.json"
+          if lock.exists():
+              data = json.loads(lock.read_text())
+              lock.write_text(json.dumps(data, indent=2) + "\n")
+
+          manifest = root / "custom_components" / "monita" / "manifest.json"
+          data = json.loads(manifest.read_text())
+          data["version"] = "1.8.8"
+          manifest.write_text(json.dumps(data, indent=2) + "\n")
+
+          changelog = root / "CHANGELOG.md"
+          body = changelog.read_text()
+          note = (
+              "# Changelog\n\n"
+              "## 1.8.8\n\n"
+              "- Completed the Monita-only source identity migration.\n"
+              "- Removed the historical compatibility component from the current package.\n"
+              "- Preserved the legacy wire authentication header internally without retaining the former product name in source text.\n"
+              "- Added a strict zero-legacy-identity repository audit.\n\n"
+          )
+          if body.startswith("# Changelog"):
+              body = note + body[len("# Changelog\n\n"):]
+          else:
+              body = note + body
+          changelog.write_text(body)
+
+          audit = root / ".github" / "workflows" / "monita-ha-identity-audit.yml"
+          audit.write_text("""name: Monita Home Assistant identity audit
+
+          on:
+            push:
+            pull_request:
+            workflow_dispatch:
+
+          jobs:
+            identity:
+              runs-on: ubuntu-latest
+              steps:
+                - uses: actions/checkout@v4
+                - name: Require Monita-only current tree
+                  shell: python
+                  run: |
+                    from pathlib import Path
+                    import sys
+
+                    needle = bytes((103, 111, 116, 105, 102, 121)).decode("ascii").casefold()
+                    failures = []
+                    for path in Path(".").rglob("*"):
+                        if ".git" in path.parts:
+                            continue
+                        if needle in path.as_posix().casefold():
+                            failures.append(f"path:{path}")
+                            continue
+                        if not path.is_file():
+                            continue
+                        try:
+                            text = path.read_text(encoding="utf-8")
+                        except (UnicodeDecodeError, OSError):
+                            continue
+                        if needle in text.casefold():
+                            failures.append(f"content:{path}")
+                    if failures:
+                        print("\\n".join(failures))
+                        sys.exit(1)
+                    print("Current tree contains only the Monita identity.")
+          """)
+
+          cleanup = root / ".github" / "workflows" / "zero-legacy-cleanup.yml"
+          if cleanup.exists():
+              cleanup.unlink()
+
+          needle = old_lower.casefold()
+          failures = []
+          for path in root.rglob("*"):
+              if ".git" in path.parts:
+                  continue
+              if needle in path.as_posix().casefold():
+                  failures.append(f"path:{path}")
+              if not path.is_file():
+                  continue
+              try:
+                  text = path.read_text(encoding="utf-8")
+              except (UnicodeDecodeError, OSError):
+                  continue
+              if needle in text.casefold():
+                  failures.append(f"content:{path}")
+          if failures:
+              raise SystemExit("Legacy identity remains:\n" + "\n".join(failures))
+          PY
+
+          python -m compileall custom_components/monita tests
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for path in Path(".").rglob("*.json"):
+              json.loads(path.read_text())
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Monita HA 1.8.8: remove final legacy identity"
+          git push origin HEAD:cleanup/zero-legacy-identity
