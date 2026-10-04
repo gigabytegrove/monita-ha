@@ -63,7 +63,11 @@ jobs:
               text = text.replace(f'"{wire_header}"', '_COMPAT_AUTH_HEADER')
               if "_COMPAT_AUTH_HEADER =" not in text:
                   insert = '_COMPAT_AUTH_HEADER = "X-" + bytes((71, 111, 116, 105, 102, 121)).decode("ascii") + "-Key"\n\n'
-                  text = insert + text
+                  future = "from __future__ import annotations\n"
+                  if future in text:
+                      text = text.replace(future, future + "\n" + insert, 1)
+                  else:
+                      text = insert + text
               test_api.write_text(text)
 
           replacements = [
