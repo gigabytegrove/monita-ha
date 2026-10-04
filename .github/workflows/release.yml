@@ -42,12 +42,23 @@ jobs:
           from pathlib import Path
 
           manifest = json.loads(
-              Path("custom_components/gotify_mu/manifest.json").read_text()
+              Path("custom_components/monita/manifest.json").read_text()
           )
           print(manifest["version"])
           PY
           )"
           test -n "$VERSION"
+          LEGACY_VERSION="$(python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(
+              Path("custom_components/gotify_mu/manifest.json").read_text()
+          )
+          print(manifest["version"])
+          PY
+          )"
+          test "$VERSION" = "$LEGACY_VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
 
@@ -87,18 +98,22 @@ jobs:
           from pathlib import Path
           from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
-          root = Path("custom_components/gotify_mu")
+          roots = [
+              (Path("custom_components/monita"), Path("monita")),
+              (Path("custom_components/gotify_mu"), Path("gotify_mu")),
+          ]
           with ZipFile("monita-ha.zip", "w", ZIP_DEFLATED) as archive:
-              for path in sorted(root.rglob("*")):
-                  if not path.is_file():
-                      continue
-                  if "__pycache__" in path.parts or path.suffix == ".pyc":
-                      continue
-                  name = (Path("gotify_mu") / path.relative_to(root)).as_posix()
-                  info = ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
-                  info.compress_type = ZIP_DEFLATED
-                  info.external_attr = (0o644 & 0xFFFF) << 16
-                  archive.writestr(info, path.read_bytes())
+              for root, archive_root in roots:
+                  for path in sorted(root.rglob("*")):
+                      if not path.is_file():
+                          continue
+                      if "__pycache__" in path.parts or path.suffix == ".pyc":
+                          continue
+                      name = (archive_root / path.relative_to(root)).as_posix()
+                      info = ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+                      info.compress_type = ZIP_DEFLATED
+                      info.external_attr = (0o644 & 0xFFFF) << 16
+                      archive.writestr(info, path.read_bytes())
           PY
           sha256sum monita-ha.zip > SHA256SUMS
           unzip -t monita-ha.zip
