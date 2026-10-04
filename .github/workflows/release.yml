@@ -48,7 +48,7 @@ jobs:
           PY
           )"
           test -n "$VERSION"
-echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Determine release publication
