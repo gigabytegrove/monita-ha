@@ -40,7 +40,7 @@ def test_token_fingerprint_unique_id_does_not_expose_token() -> None:
 
 
 def test_channel_unique_id() -> None:
-    """Build stable channel IDs when Gotify MU exposes application identity."""
+    """Build stable channel IDs when Monita exposes application identity."""
     assert (
         channel_unique_id("https://push.example.com", 42)
         == "https://push.example.com|channel:42"
