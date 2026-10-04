@@ -1,4 +1,4 @@
-"""API regression tests for Gotify MU attachment publishing."""
+"""API regression tests for Monita attachment publishing."""
 
 from __future__ import annotations
 
