@@ -33,7 +33,7 @@ send:
           mode: slider
     markdown:
       name: Markdown
-      description: Render the message as Markdown on clients that support Gotify-compatible message extras.
+      description: Render the message as Markdown on clients that support Monita-compatible message extras.
       required: false
       default: false
       selector:

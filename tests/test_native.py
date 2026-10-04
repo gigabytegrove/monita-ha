@@ -14,7 +14,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.gotify_mu.const import (
+from custom_components.monita.const import (
     CONF_APP_TOKEN,
     CONF_CHANNEL_ID,
     CONF_CHANNEL_NAME,
@@ -30,16 +30,16 @@ from custom_components.gotify_mu.const import (
     CONF_VERIFY_SSL,
     DOMAIN,
 )
-from custom_components.gotify_mu.diagnostics import async_get_config_entry_diagnostics
-from custom_components.gotify_mu.native import (
+from custom_components.monita.diagnostics import async_get_config_entry_diagnostics
+from custom_components.monita.native import (
     MonitaNativeBridge,
     MonitaNativePairingError,
     _NativeDeliveryResult,
     async_pair_native,
 )
-from custom_components.gotify_mu.repairs import native_bridge_issue_id
+from custom_components.monita.repairs import native_bridge_issue_id
 
-SERVER = "http://gotify-mu.local:8080"
+SERVER = "http://monita.local:8080"
 PAIR_URL = f"{SERVER}/integrations/home-assistant/native/pair"
 EVENT_PATH = "/integrations/home-assistant/native/12/event"
 EVENT_URL = f"{SERVER}{EVENT_PATH}"
@@ -105,11 +105,11 @@ async def test_native_pairing_success_stores_credentials(hass, aioclient_mock):
 
     with (
         patch(
-            "custom_components.gotify_mu.config_flow.webhook.async_generate_id",
+            "custom_components.monita.config_flow.webhook.async_generate_id",
             return_value=WEBHOOK_ID,
         ),
         patch(
-            "custom_components.gotify_mu.config_flow.webhook.async_generate_url",
+            "custom_components.monita.config_flow.webhook.async_generate_url",
             return_value=WEBHOOK_URL,
         ),
     ):
@@ -151,11 +151,11 @@ async def test_native_pairing_manual_callback_override(hass, aioclient_mock):
 
     with (
         patch(
-            "custom_components.gotify_mu.config_flow.webhook.async_generate_id",
+            "custom_components.monita.config_flow.webhook.async_generate_id",
             return_value=WEBHOOK_ID,
         ),
         patch(
-            "custom_components.gotify_mu.config_flow.webhook.async_generate_url",
+            "custom_components.monita.config_flow.webhook.async_generate_url",
             return_value="http://unreachable.local:8123/api/webhook/native-webhook-test",
         ),
     ):
@@ -216,11 +216,11 @@ async def test_native_repair_replaces_only_native_credentials(hass, aioclient_mo
 
     with (
         patch(
-            "custom_components.gotify_mu.config_flow.webhook.async_generate_id",
+            "custom_components.monita.config_flow.webhook.async_generate_id",
             return_value="replacement-webhook",
         ),
         patch(
-            "custom_components.gotify_mu.config_flow.webhook.async_generate_url",
+            "custom_components.monita.config_flow.webhook.async_generate_url",
             return_value="http://homeassistant.local:8123/api/webhook/replacement-webhook",
         ),
     ):
@@ -330,7 +330,7 @@ async def test_native_webhook_rejects_invalid_bearer(hass, hass_client):
         response = await client.post(
             f"/api/webhook/{WEBHOOK_ID}",
             headers={"Authorization": "Bearer wrong-secret"},
-            json={"eventType": "gotify_mu_test", "data": {"message": "blocked"}},
+            json={"eventType": "monita_test", "data": {"message": "blocked"}},
         )
         assert response.status == 401
         assert bridge.status == "paired"
@@ -343,7 +343,7 @@ async def test_native_webhook_fires_home_assistant_event(hass, hass_client):
     assert await async_setup_component(hass, "webhook", {})
     client = await hass_client()
     received = []
-    hass.bus.async_listen("gotify_mu_test", received.append)
+    hass.bus.async_listen("monita_test", received.append)
     bridge = MonitaNativeBridge(
         hass,
         async_get_clientsession(hass),
@@ -360,7 +360,7 @@ async def test_native_webhook_fires_home_assistant_event(hass, hass_client):
             f"/api/webhook/{WEBHOOK_ID}",
             headers={"Authorization": f"Bearer {SHARED_SECRET}"},
             json={
-                "eventType": "gotify_mu_test",
+                "eventType": "monita_test",
                 "data": {"message": "Monita connection test"},
             },
         )
@@ -374,7 +374,7 @@ async def test_native_webhook_fires_home_assistant_event(hass, hass_client):
         bridge.async_stop()
 
 
-async def test_home_assistant_event_bus_posts_to_gotify_mu(hass, aioclient_mock):
+async def test_home_assistant_event_bus_posts_to_monita(hass, aioclient_mock):
     """A real HA event-bus event is authenticated and posted to Monita."""
     aioclient_mock.post(EVENT_URL, status=202)
     bridge = MonitaNativeBridge(
@@ -434,7 +434,7 @@ async def test_native_event_delivery_retries_transient_failure(hass):
     )
     with (
         patch.object(bridge, "_async_post_body", attempts),
-        patch("custom_components.gotify_mu.native.asyncio.sleep", new=AsyncMock()),
+        patch("custom_components.monita.native.asyncio.sleep", new=AsyncMock()),
     ):
         assert await bridge._async_post_event(event)
 

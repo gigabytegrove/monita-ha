@@ -10,7 +10,7 @@ from aiohttp import ClientError
 from homeassistant.exceptions import HomeAssistantError
 from yarl import URL
 
-from custom_components.gotify_mu.media import (
+from custom_components.monita.media import (
     MAX_IMAGE_BYTES,
     async_acquire_entity_image,
     async_acquire_url_image,

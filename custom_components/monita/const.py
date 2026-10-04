@@ -6,7 +6,7 @@ from homeassistant.const import Platform
 
 DOMAIN = "monita"
 SERVICE_DOMAIN = DOMAIN
-LEGACY_SERVICE_DOMAIN = "gotify_mu"
+LEGACY_SERVICE_DOMAIN = "monita"
 
 CONF_SERVER_URL = "server_url"
 CONF_APP_TOKEN = "app_token"
@@ -39,6 +39,6 @@ SERVICE_SEND = "send"
 EVENT_TYPE_MESSAGE = "message"
 
 INTEGRATION_ORIGIN_EXTRA = "homeassistant::monita"
-LEGACY_INTEGRATION_ORIGIN_EXTRA = "homeassistant::gotify_mu"
+LEGACY_INTEGRATION_ORIGIN_EXTRA = "homeassistant::monita"
 REQUEST_TIMEOUT_SECONDS = 10
 STREAM_RECONNECT_MAX_SECONDS = 60

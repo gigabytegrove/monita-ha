@@ -16,4 +16,4 @@ Home Assistant and HACS surfaces require PNG assets. `scripts/render_branding.py
 - `monita-ha-icon.png` / `icon.png` — direct render of the supplied HA icon
 - `monita-ha-logo.png` / `logo.png` — direct render of the supplied full HA logo
 
-The historical `gotify_mu` component keeps byte-identical branding aliases only for existing-install compatibility. It does not use separate artwork.
+The historical `monita` component keeps byte-identical branding aliases only for existing-install compatibility. It does not use separate artwork.
