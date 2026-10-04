@@ -1,3 +1,11 @@
+## 1.8.6
+
+- Continued the Monita identity cleanup across the Home Assistant integration.
+- Reduced the legacy `gotify_mu` compatibility component by delegating shared API, media, diagnostics, and helper logic to the canonical `monita` implementation.
+- Preserved the historical Home Assistant domain only for existing config-entry compatibility.
+- Corrected repair/help links to the current Monita for Home Assistant repository.
+- Added identity regression coverage so stale product branding cannot return unnoticed.
+
 # Changelog
 
 ## 1.8.5 — 2026-10-02
