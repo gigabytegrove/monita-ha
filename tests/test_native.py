@@ -32,8 +32,8 @@ from custom_components.gotify_mu.const import (
 )
 from custom_components.gotify_mu.diagnostics import async_get_config_entry_diagnostics
 from custom_components.gotify_mu.native import (
-    GotifyMUNativeBridge,
-    GotifyMUNativePairingError,
+    MonitaNativeBridge,
+    MonitaNativePairingError,
     _NativeDeliveryResult,
     async_pair_native,
 )
@@ -189,7 +189,7 @@ async def test_native_pairing_errors(hass, aioclient_mock, status, reason):
     """Bad, expired, and otherwise failed pairing responses are explicit."""
     aioclient_mock.post(PAIR_URL, status=status)
 
-    with pytest.raises(GotifyMUNativePairingError) as err:
+    with pytest.raises(MonitaNativePairingError) as err:
         await async_pair_native(
             async_get_clientsession(hass),
             server_url=SERVER,
@@ -315,7 +315,7 @@ async def test_native_webhook_rejects_invalid_bearer(hass, hass_client):
     """The HA webhook rejects a request with the wrong shared secret."""
     assert await async_setup_component(hass, "webhook", {})
     client = await hass_client()
-    bridge = GotifyMUNativeBridge(
+    bridge = MonitaNativeBridge(
         hass,
         async_get_clientsession(hass),
         name="Home Assistant",
@@ -344,7 +344,7 @@ async def test_native_webhook_fires_home_assistant_event(hass, hass_client):
     client = await hass_client()
     received = []
     hass.bus.async_listen("gotify_mu_test", received.append)
-    bridge = GotifyMUNativeBridge(
+    bridge = MonitaNativeBridge(
         hass,
         async_get_clientsession(hass),
         name="Home Assistant",
@@ -377,7 +377,7 @@ async def test_native_webhook_fires_home_assistant_event(hass, hass_client):
 async def test_home_assistant_event_bus_posts_to_gotify_mu(hass, aioclient_mock):
     """A real HA event-bus event is authenticated and posted to Monita."""
     aioclient_mock.post(EVENT_URL, status=202)
-    bridge = GotifyMUNativeBridge(
+    bridge = MonitaNativeBridge(
         hass,
         async_get_clientsession(hass),
         name="Home Assistant",
@@ -411,7 +411,7 @@ async def test_home_assistant_event_bus_posts_to_gotify_mu(hass, aioclient_mock)
 
 async def test_native_event_delivery_retries_transient_failure(hass):
     """Transient failures use bounded retry and recover without dropping the event."""
-    bridge = GotifyMUNativeBridge(
+    bridge = MonitaNativeBridge(
         hass,
         async_get_clientsession(hass),
         name="Home Assistant",
@@ -447,7 +447,7 @@ async def test_native_event_delivery_retries_transient_failure(hass):
 async def test_native_event_auth_failure_marks_repair_required(hass, aioclient_mock):
     """A rejected native secret is visible as repair-required state."""
     aioclient_mock.post(EVENT_URL, status=401)
-    bridge = GotifyMUNativeBridge(
+    bridge = MonitaNativeBridge(
         hass,
         async_get_clientsession(hass),
         name="Home Assistant",
