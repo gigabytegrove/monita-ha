@@ -14,6 +14,13 @@
 - Preserved the legacy wire authentication header internally without retaining the former product name in source text.
 - Added a strict zero-legacy-identity repository audit.
 
+## 1.8.8
+
+- Completed the Monita-only source identity migration.
+- Removed the historical compatibility component from the current package.
+- Preserved the legacy wire authentication header internally without retaining the former product name in source text.
+- Added a strict zero-legacy-identity repository audit.
+
 ## 1.8.7 — 2026-10-04
 
 ### Legacy compatibility cleanup
