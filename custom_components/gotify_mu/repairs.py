@@ -34,7 +34,7 @@ def async_create_native_bridge_repair_issue(
         translation_key=NATIVE_BRIDGE_AUTH_ISSUE,
         translation_placeholders={"name": name},
         learn_more_url=(
-            "https://github.com/gigabytegrove/gotify-mu-ha"
+            "https://github.com/gigabytegrove/monita-ha"
             "#native-monita-pairing"
         ),
     )

@@ -1,4 +1,4 @@
-"""Pytest fixtures for Gotify MU."""
+"""Pytest fixtures for Monita."""
 
 import pytest
 
