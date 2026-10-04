@@ -5,7 +5,7 @@ from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResultType, InvalidData
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.gotify_mu.config_flow import GotifyMUOptionsFlow
+from custom_components.gotify_mu.config_flow import MonitaOptionsFlow
 from custom_components.gotify_mu.const import (
     CONF_CHANNEL_IDS,
     CONF_CLIENT_TOKEN,
@@ -211,4 +211,4 @@ async def test_manage_channels_refreshes_live_server_list(hass, aioclient_mock):
 
 def test_options_flow_uses_reload_helper():
     """Channel/option changes reload the integration automatically."""
-    assert issubclass(GotifyMUOptionsFlow, config_entries.OptionsFlowWithReload)
+    assert issubclass(MonitaOptionsFlow, config_entries.OptionsFlowWithReload)
