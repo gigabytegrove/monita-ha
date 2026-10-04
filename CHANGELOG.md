@@ -1,3 +1,12 @@
+## 1.8.7 — 2026-10-04
+
+### Legacy compatibility cleanup
+
+- Reduces the historical `custom_components/gotify_mu` implementation toward a compatibility-only bridge while keeping `custom_components/monita` canonical.
+- Replaces duplicated notification, event, binary-sensor, and repair implementations with thin Monita compatibility shims.
+- Preserves repair issues under the historical `gotify_mu` domain for existing config entries so repair flows remain discoverable after upgrade.
+- Keeps legacy domain, manifest, config-flow, translation, service, credential, and entity compatibility required for non-destructive upgrades.
+
 ## 1.8.6
 
 - Continued the Monita identity cleanup across the Home Assistant integration.
