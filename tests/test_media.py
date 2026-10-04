@@ -71,7 +71,7 @@ class _Session:
 async def test_camera_entity_captures_current_frame(hass):
     """Camera entities are captured through Home Assistant's camera API."""
     with patch(
-        "custom_components.gotify_mu.media._async_get_camera_image",
+        "custom_components.monita.media._async_get_camera_image",
         new=AsyncMock(
             return_value=SimpleNamespace(content=JPEG, content_type="image/jpeg")
         ),
@@ -88,7 +88,7 @@ async def test_camera_entity_captures_current_frame(hass):
 async def test_image_entity_uses_supported_image_api(hass):
     """Image entities are retrieved through Home Assistant's image API."""
     with patch(
-        "custom_components.gotify_mu.media._async_get_image_entity",
+        "custom_components.monita.media._async_get_image_entity",
         new=AsyncMock(
             return_value=SimpleNamespace(content=PNG, content_type="image/png")
         ),
@@ -108,7 +108,7 @@ async def test_http_image_is_downloaded_into_home_assistant(hass):
     session = _Session(_Response(source, JPEG))
 
     with patch(
-        "custom_components.gotify_mu.media.async_get_clientsession",
+        "custom_components.monita.media.async_get_clientsession",
         return_value=session,
     ):
         result = await async_acquire_url_image(hass, source)
@@ -133,7 +133,7 @@ async def test_oversized_http_image_is_rejected_before_upload(hass):
 
     with (
         patch(
-            "custom_components.gotify_mu.media.async_get_clientsession",
+            "custom_components.monita.media.async_get_clientsession",
             return_value=session,
         ),
         pytest.raises(HomeAssistantError, match="Image exceeded upload limit"),
@@ -154,7 +154,7 @@ async def test_non_image_mime_is_rejected(hass):
 
     with (
         patch(
-            "custom_components.gotify_mu.media.async_get_clientsession",
+            "custom_components.monita.media.async_get_clientsession",
             return_value=session,
         ),
         pytest.raises(HomeAssistantError, match="Unsupported image type"),
@@ -175,7 +175,7 @@ async def test_html_pretending_to_be_jpeg_is_rejected(hass):
 
     with (
         patch(
-            "custom_components.gotify_mu.media.async_get_clientsession",
+            "custom_components.monita.media.async_get_clientsession",
             return_value=session,
         ),
         pytest.raises(HomeAssistantError, match="Unsupported image type"),
@@ -194,7 +194,7 @@ async def test_source_url_secrets_are_not_exposed_in_errors_or_logs(hass, caplog
 
     with (
         patch(
-            "custom_components.gotify_mu.media.async_get_clientsession",
+            "custom_components.monita.media.async_get_clientsession",
             return_value=session,
         ),
         pytest.raises(HomeAssistantError) as error,
