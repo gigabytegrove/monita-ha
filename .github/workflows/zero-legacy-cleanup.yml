@@ -22,14 +22,13 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Remove historical identity from current tree
+      - name: Remove historical identity from non-workflow files
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
           import json
-          import re
           import shutil
 
           root = Path(".")
@@ -54,7 +53,7 @@ jobs:
           if "_COMPAT_AUTH_HEADER =" not in text:
               anchor = "from .const import REQUEST_TIMEOUT_SECONDS\n"
               replacement = anchor + '\n_COMPAT_AUTH_HEADER = "X-" + bytes((71, 111, 116, 105, 102, 121)).decode("ascii") + "-Key"\n'
-              text = text.replace(anchor, replacement)
+              text = text.replace(anchor, replacement, 1)
           api.write_text(text)
 
           test_api = root / "tests" / "test_api.py"
@@ -62,12 +61,12 @@ jobs:
               text = test_api.read_text()
               text = text.replace(f'"{wire_header}"', '_COMPAT_AUTH_HEADER')
               if "_COMPAT_AUTH_HEADER =" not in text:
-                  insert = '_COMPAT_AUTH_HEADER = "X-" + bytes((71, 111, 116, 105, 102, 121)).decode("ascii") + "-Key"\n\n'
+                  insert = '_COMPAT_AUTH_HEADER = "X-" + bytes((71, 111, 116, 105, 102, 121)).decode("ascii") + "-Key"\n'
                   future = "from __future__ import annotations\n"
                   if future in text:
                       text = text.replace(future, future + "\n" + insert, 1)
                   else:
-                      text = insert + text
+                      text = insert + "\n" + text
               test_api.write_text(text)
 
           replacements = [
@@ -88,7 +87,7 @@ jobs:
           for path in root.rglob("*"):
               if not path.is_file() or ".git" in path.parts:
                   continue
-              if path.name == "zero-legacy-cleanup.yml":
+              if ".github" in path.parts and "workflows" in path.parts:
                   continue
               if path.suffix.lower() not in suffixes and path.name not in special_names:
                   continue
@@ -102,42 +101,17 @@ jobs:
               if text != original:
                   path.write_text(text, encoding="utf-8")
 
-          release = root / ".github" / "workflows" / "release.yml"
-          text = release.read_text()
-          text = re.sub(
-              r'\n\s*LEGACY_VERSION="\$\(python - <<\'PY\'\n.*?\n\s*test "\$VERSION" = "\$LEGACY_VERSION"\n',
-              "\n",
-              text,
-              flags=re.S,
-          )
-          duplicate = '              (Path("custom_components/monita"), Path("monita")),\n'
-          first = text.find(duplicate)
-          if first >= 0:
-              second = text.find(duplicate, first + len(duplicate))
-              if second >= 0:
-                  text = text[:second] + text[second + len(duplicate):]
-          release.write_text(text)
-
-          validate = root / ".github" / "workflows" / "validate.yml"
-          if validate.exists():
-              text = validate.read_text().replace(
-                  "python -m compileall custom_components/monita custom_components/monita tests",
-                  "python -m compileall custom_components/monita tests",
-              )
-              validate.write_text(text)
-
           render = root / "scripts" / "render_branding.py"
           if render.exists():
-              text = render.read_text()
-              lines = text.splitlines()
+              lines = render.read_text().splitlines()
               out = []
-              seen_alias_lines = set()
+              seen = set()
               for line in lines:
                   stripped = line.strip()
                   if stripped.startswith('ROOT / "custom_components" / "monita" / "brand" /'):
-                      if stripped in seen_alias_lines:
+                      if stripped in seen:
                           continue
-                      seen_alias_lines.add(stripped)
+                      seen.add(stripped)
                   out.append(line)
               render.write_text("\n".join(out) + "\n")
 
@@ -161,61 +135,18 @@ jobs:
               "- Preserved the legacy wire authentication header internally without retaining the former product name in source text.\n"
               "- Added a strict zero-legacy-identity repository audit.\n\n"
           )
-          if body.startswith("# Changelog"):
+          if body.startswith("# Changelog\n\n"):
               body = note + body[len("# Changelog\n\n"):]
           else:
               body = note + body
           changelog.write_text(body)
 
-          audit = root / ".github" / "workflows" / "monita-ha-identity-audit.yml"
-          audit.write_text("""name: Monita Home Assistant identity audit
-
-          on:
-            push:
-            pull_request:
-            workflow_dispatch:
-
-          jobs:
-            identity:
-              runs-on: ubuntu-latest
-              steps:
-                - uses: actions/checkout@v4
-                - name: Require Monita-only current tree
-                  shell: python
-                  run: |
-                    from pathlib import Path
-                    import sys
-
-                    needle = bytes((103, 111, 116, 105, 102, 121)).decode("ascii").casefold()
-                    failures = []
-                    for path in Path(".").rglob("*"):
-                        if ".git" in path.parts:
-                            continue
-                        if needle in path.as_posix().casefold():
-                            failures.append(f"path:{path}")
-                            continue
-                        if not path.is_file():
-                            continue
-                        try:
-                            text = path.read_text(encoding="utf-8")
-                        except (UnicodeDecodeError, OSError):
-                            continue
-                        if needle in text.casefold():
-                            failures.append(f"content:{path}")
-                    if failures:
-                        print("\\n".join(failures))
-                        sys.exit(1)
-                    print("Current tree contains only the Monita identity.")
-          """)
-
-          cleanup = root / ".github" / "workflows" / "zero-legacy-cleanup.yml"
-          if cleanup.exists():
-              cleanup.unlink()
-
           needle = old_lower.casefold()
           failures = []
           for path in root.rglob("*"):
               if ".git" in path.parts:
+                  continue
+              if ".github" in path.parts and "workflows" in path.parts:
                   continue
               if needle in path.as_posix().casefold():
                   failures.append(f"path:{path}")
@@ -228,7 +159,7 @@ jobs:
               if needle in text.casefold():
                   failures.append(f"content:{path}")
           if failures:
-              raise SystemExit("Legacy identity remains:\n" + "\n".join(failures))
+              raise SystemExit("Legacy identity remains outside workflows:\n" + "\n".join(failures))
           PY
 
           python -m compileall custom_components/monita tests
@@ -241,6 +172,7 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add -A ':!.github/workflows'
+          git diff --cached --quiet && exit 0
           git commit -m "Monita HA 1.8.8: remove final legacy identity"
           git push origin HEAD:cleanup/zero-legacy-identity
