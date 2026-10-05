@@ -8,7 +8,7 @@ from typing import Any
 from aiohttp import FormData
 from yarl import URL
 
-from custom_components.gotify_mu.api import MonitaClient
+from custom_components.monita.api import MonitaClient
 
 SERVER = "https://push.example.test"
 APP_TOKEN = "app-secret"
@@ -70,7 +70,7 @@ async def test_text_only_send_payload_is_unchanged():
 
     _, url, kwargs = session.calls[0]
     assert url == f"{SERVER}/message"
-    assert kwargs["headers"] == {"X-Gotify-Key": APP_TOKEN}
+    assert kwargs["headers"] == {"X-Monita-Key": APP_TOKEN}
     assert kwargs["json"] == {
         "message": "Door opened",
         "priority": 8,
@@ -96,7 +96,7 @@ async def test_upload_image_uses_application_token_and_multipart_form():
 
     _, url, kwargs = session.calls[0]
     assert url == f"{SERVER}/application/current/attachment"
-    assert kwargs["headers"] == {"X-Gotify-Key": APP_TOKEN}
+    assert kwargs["headers"] == {"X-Monita-Key": APP_TOKEN}
     assert isinstance(kwargs["data"], FormData)
     assert "json" not in kwargs
     assert attachment.id == 123
@@ -152,7 +152,7 @@ async def test_client_token_send_routes_to_selected_channel():
 
     _, url, kwargs = session.calls[0]
     assert url == f"{SERVER}/message"
-    assert kwargs["headers"] == {"X-Gotify-Key": "client-secret"}
+    assert kwargs["headers"] == {"X-Monita-Key": "client-secret"}
     assert kwargs["json"] == {
         "message": "Greenhouse alert",
         "priority": 7,
@@ -191,7 +191,7 @@ async def test_capabilities_discovers_chat_images():
     method, url, kwargs = session.calls[0]
     assert method == "GET"
     assert url == f"{SERVER}/api/mu/v1/capabilities"
-    assert kwargs["headers"] == {"X-Gotify-Key": "client-secret"}
+    assert kwargs["headers"] == {"X-Monita-Key": "client-secret"}
     assert capabilities["features"]["chatImages"] is True
 
 
@@ -207,13 +207,13 @@ async def test_chat_image_send_uses_client_token_and_multipart():
         filename="front-door.jpg",
         content_type="image/jpeg",
         priority=9,
-        extras={"homeassistant::gotify_mu": {"entry_id": "entry-1"}},
+        extras={"homeassistant::monita": {"entry_id": "entry-1"}},
     )
 
     method, url, kwargs = session.calls[0]
     assert method == "POST"
     assert url == f"{SERVER}/application/8/chat-message"
-    assert kwargs["headers"] == {"X-Gotify-Key": "client-secret"}
+    assert kwargs["headers"] == {"X-Monita-Key": "client-secret"}
     assert isinstance(kwargs["data"], FormData)
     assert "json" not in kwargs
     assert result["id"] == 9
@@ -222,7 +222,7 @@ async def test_chat_image_send_uses_client_token_and_multipart():
 async def test_capabilities_returns_chat_image_feature():
     """Capability discovery exposes the server's Chat image support."""
     session = _FakeSession(
-        [{"product": "gotify-mu", "features": {"chatImages": True}}]
+        [{"product": "monita", "features": {"chatImages": True}}]
     )
     client = MonitaClient(session, SERVER, "", True, "client-secret")
 
@@ -231,7 +231,7 @@ async def test_capabilities_returns_chat_image_feature():
     method, url, kwargs = session.calls[0]
     assert method == "GET"
     assert url == f"{SERVER}/api/mu/v1/capabilities"
-    assert kwargs["headers"] == {"X-Gotify-Key": "client-secret"}
+    assert kwargs["headers"] == {"X-Monita-Key": "client-secret"}
     assert capabilities["features"]["chatImages"] is True
 
 
@@ -248,13 +248,13 @@ async def test_send_chat_image_uses_client_token_and_multipart():
         filename="front-door.jpg",
         content_type="image/jpeg",
         priority=9,
-        extras={"homeassistant::gotify_mu": {"source": "monita-ha"}},
+        extras={"homeassistant::monita": {"source": "monita-ha"}},
     )
 
     method, url, kwargs = session.calls[0]
     assert method == "POST"
     assert url == f"{SERVER}/application/8/chat-message"
-    assert kwargs["headers"] == {"X-Gotify-Key": "client-secret"}
+    assert kwargs["headers"] == {"X-Monita-Key": "client-secret"}
     assert isinstance(kwargs["data"], FormData)
     assert "json" not in kwargs
     assert result == {"id": 55, "appid": 8}

@@ -347,7 +347,7 @@ For server-centric connections, Push Message uses Monita's legacy-compatible mes
 
 ```text
 POST /message
-X-Gotify-Key: <client-token>
+X-Monita-Key: <client-token>
 
 {
   "appid": <selected-channel-id>,
@@ -359,11 +359,11 @@ Image notifications additionally use Monita's staged attachment endpoint:
 
 ```text
 POST /application/current/attachment
-X-Gotify-Key: <application-token>
+X-Monita-Key: <application-token>
 Content-Type: multipart/form-data
 ```
 
-The returned staged attachment ID is supplied to `POST /message` as `attachmentIds`. The integration does not invent public media URLs or manually build `gotify-mu::display.images` / `client::notification.bigImageUrl`; Monita owns that canonical contract.
+The returned staged attachment ID is supplied to `POST /message` as `attachmentIds`. The integration does not invent public media URLs or manually build `monita::display.images` / `client::notification.bigImageUrl`; Monita owns that canonical contract.
 
 Monita-specific capabilities are additive. Text-only outbound operation remains compatible with older servers that do not expose the Monita identity or staged attachment endpoints.
 

@@ -1,75 +1,15 @@
-# Monita for Home Assistant rebrand
+# Monita Identity
 
-**Monita for Home Assistant** is the new product name for **Gotify-MU for Home Assistant**.
+Monita for Home Assistant uses the canonical `monita` integration domain and Monita-native protocol identifiers.
 
-This rebrand is designed as an in-place upgrade, not a replacement integration.
+The retired compatibility identity is no longer supported. Current installations, automations, services, documentation, tests, and release packages use Monita naming exclusively.
 
-## What users will see change
+## Canonical identifiers
 
-- Home Assistant integration name: **Monita for Home Assistant**
-- HACS display name: **Monita for Home Assistant**
-- setup, options, Repairs, diagnostics, and action-editor wording: **Monita**
-- device manufacturer: **Monita**
-- GitHub release titles: **Monita for Home Assistant**
-- documentation and examples: **Monita**
-- approved visual identity: the supplied Monita for Home Assistant branding
+- Integration domain: `monita`
+- Service action: `monita.send`
+- Integration origin marker: `homeassistant::monita`
+- Authentication header: `X-Monita-Key`
+- Display extras: `monita::display`
 
-During the transition, documentation may include **formerly Gotify-MU for Home Assistant** to make the rename clear to existing users.
-
-## What intentionally does not change in 1.3.0
-
-The following technical identifiers are compatibility contracts and remain unchanged:
-
-| Existing identifier | 1.3.0 behavior | Why |
-| --- | --- | --- |
-| `monita` | Canonical | Home Assistant integration domain for new installations |
-| `custom_components/monita` | Canonical | Active Monita custom component implementation |
-| `monita.send` | Canonical | Monita automation/action namespace |
-| historical integration domain | Compatibility only | Keeps config entries created before the canonical Monita domain loadable during migration |
-| `homeassistant::gotify_mu` | Compatibility only | Accepted only for historical loop-prevention metadata; new messages use `homeassistant::monita` |
-| Stored config entries | Retained | No delete/re-add process |
-| Entity unique IDs | Retained | Dashboards and automations keep their entity registry relationships |
-| Application/client tokens | Retained | No credential reset solely because of the rename |
-| Native pairing credentials | Retained | Existing paired bridges do not need to be rebuilt |
-
-A future technical namespace migration, if ever introduced, must include an explicit migration layer and compatibility period. A brand rename alone is not sufficient reason to break existing Home Assistant YAML.
-
-## Existing automations
-
-This remains valid after the rebrand:
-
-```yaml
-action:
-  - action: monita.send
-    data:
-      title: "Front Door"
-      message: "Person detected."
-      priority: 9
-      image_entity: camera.front_door
-```
-
-The Home Assistant action editor and technical action ID are both Monita-native: `monita.send`. The historical integration domain is retained only for existing-install compatibility.
-
-## Server/API terminology
-
-Monita continues to use the established compatible HTTP/WebSocket contracts used by this integration.
-
-Documentation retains the word **Gotify** only when it is technically necessary to describe:
-
-- upstream/legacy Gotify API compatibility
-- an established API header or wire-format convention
-- legacy product/version history in the changelog
-- compatibility identifiers that cannot be renamed without breaking upgrades
-
-Those references do not represent the active product name.
-
-## Visual identity
-
-Authoritative artwork:
-
-- `branding/MonitaHomeAssistant_Full-01.svg` — exact full logo supplied on 2026-10-01
-- `branding/Monita_HA_Icon-01.svg` — exact icon supplied on 2026-10-01
-
-These supplied SVG files are the design authority. The artwork must not be redesigned, recolored, or regenerated as part of ordinary software work.
-
-Home Assistant/HACS PNG copies must be rendered directly from the supplied SVG masters and must never be manually redrawn, recolored, traced, simplified, cropped, stretched, or substituted.
+See [FEATURES.md](FEATURES.md) for current behavior and configuration.

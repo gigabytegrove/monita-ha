@@ -1,6 +1,6 @@
 # Monita for Home Assistant — Complete Feature & Usage Guide
 
-This is the canonical user-facing guide for every supported Monita for Home Assistant feature. Monita for Home Assistant was formerly Gotify-MU for Home Assistant.
+This is the canonical user-facing guide for every supported Monita for Home Assistant feature. Monita for Home Assistant was formerly Monita for Home Assistant.
 
 The integration is designed around three separate paths:
 
@@ -12,14 +12,14 @@ Legacy per-Channel application-token entries remain supported for upgrade compat
 
 ## Product-name transition
 
-Monita for Home Assistant is the successor name for **Gotify-MU for Home Assistant**. The rebrand does not rename Home Assistant's technical integration domain in this release.
+Monita for Home Assistant is the successor name for **Monita for Home Assistant**. The rebrand does not rename Home Assistant's technical integration domain in this release.
 
 For compatibility, existing YAML and stored objects continue to use:
 
 - `monita` as the canonical Home Assistant integration domain
 - `monita.send` as the canonical Push Message action ID
 - `custom_components/monita` as the canonical custom component directory
-- the historical integration domain and `homeassistant::gotify_mu` origin marker only as compatibility inputs for installations created before the canonical Monita domain
+- the historical integration domain and `homeassistant::monita` origin marker only as compatibility inputs for installations created before the canonical Monita domain
 
 These identifiers are compatibility contracts, not the active product name.
 
@@ -150,7 +150,7 @@ Supported fields:
 | `channel` | Recommended | Monita notify entity representing the destination Channel |
 | `title` | No | Notification title |
 | `priority` | No | Per-message Monita priority from 0–10 |
-| `markdown` | No | Enables Gotify-compatible Markdown display extras |
+| `markdown` | No | Enables Monita Markdown display extras |
 | `entry_id` | No | Legacy/advanced server-entry targeting |
 | `image_entity` | No | Captures a current `camera.*` or `image.*` image |
 | `image_url` | No | Downloads an HTTP/HTTPS image inside Home Assistant |
@@ -226,7 +226,7 @@ The integration adds its origin marker:
 
 ```json
 {
-  "homeassistant::gotify_mu": {
+  "homeassistant::monita": {
     "entry_id": "...",
     "channel_id": 7,
     "source": "monita-ha"
@@ -370,7 +370,7 @@ For `image_url`, the integration:
 - validates the response MIME type
 - validates the actual image byte signature
 - rejects HTML or login/error pages pretending to be images
-- does not place the source URL in Gotify extras
+- does not place the source URL in Monita extras
 - avoids exposing secret query-string values in integration error messages
 
 Supported image types:
@@ -426,7 +426,7 @@ For legacy per-Channel application-token entries, images are uploaded with the c
 
 ```text
 POST /application/current/attachment
-X-Gotify-Key: <application-token>
+X-Monita-Key: <application-token>
 Content-Type: multipart/form-data
 ```
 
@@ -440,7 +440,7 @@ The returned staged ID is sent through the normal message API:
 
 Home Assistant does not manually create:
 
-- `gotify-mu::display.images`
+- `monita::display.images`
 - `client::notification.bigImageUrl`
 - public Monita media URLs
 
@@ -790,8 +790,8 @@ The integration is intentionally conservative.
 - Native webhook payloads can fire Home Assistant events but cannot directly execute arbitrary services.
 - Native webhook authentication uses the exact Bearer secret.
 - Image notifications upload image bytes rather than leaking Home Assistant authentication or private camera URLs to clients.
-- Home Assistant tokens are never inserted into Gotify extras for image delivery.
-- Large images are not embedded as base64 in Gotify message JSON.
+- Home Assistant tokens are never inserted into Monita extras for image delivery.
+- Large images are not embedded as base64 in Monita message JSON.
 - Image data is not stored in message text or extras by this integration.
 
 ---
@@ -800,11 +800,11 @@ The integration is intentionally conservative.
 
 ### Server-centric text and Markdown publishing
 
-New installations publish through Monita's Gotify-compatible message endpoint using the server client token and the destination Channel ID:
+New installations publish through Monita's Monita message endpoint using the server client token and the destination Channel ID:
 
 ```text
 POST /message
-X-Gotify-Key: <client-token>
+X-Monita-Key: <client-token>
 ```
 
 Example payload:
@@ -825,9 +825,9 @@ Existing per-Channel entries continue to use the older application-token route w
 
 This is also the current path used by staged image uploads.
 
-### Gotify compatibility
+### Monita protocol
 
-The underlying message endpoint and headers remain Gotify-compatible where possible. Monita-specific multi-user Channel roles, selected-Channel management, and native bridge capabilities are additive.
+The underlying message endpoint and headers remain Monita where possible. Monita-specific multi-user Channel roles, selected-Channel management, and native bridge capabilities are additive.
 
 ### Image notifications
 

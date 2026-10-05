@@ -48,8 +48,6 @@ from .const import (
     DEFAULT_PRIORITY,
     DOMAIN,
     INTEGRATION_ORIGIN_EXTRA,
-    LEGACY_INTEGRATION_ORIGIN_EXTRA,
-    LEGACY_SERVICE_DOMAIN,
     PLATFORMS,
     SERVICE_DOMAIN,
     SERVICE_SEND,
@@ -272,7 +270,7 @@ def _message_is_from_this_entry(entry_id: str, message: dict[str, Any]) -> bool:
     extras = message.get("extras")
     if not isinstance(extras, dict):
         return False
-    for key in (INTEGRATION_ORIGIN_EXTRA, LEGACY_INTEGRATION_ORIGIN_EXTRA):
+    for key in (INTEGRATION_ORIGIN_EXTRA,):
         origin = extras.get(key)
         if isinstance(origin, dict) and origin.get("entry_id") == entry_id:
             return True
@@ -297,7 +295,7 @@ def _resolve_push_target(
     call: ServiceCall,
 ) -> tuple[MonitaConfigEntry, int]:
     """Resolve the selected server entry and destination Channel."""
-    candidate_domains = tuple(dict.fromkeys((DOMAIN, SERVICE_DOMAIN, LEGACY_SERVICE_DOMAIN)))
+    candidate_domains = tuple(dict.fromkeys((DOMAIN, SERVICE_DOMAIN)))
     loaded_by_id: dict[str, MonitaConfigEntry] = {}
     for candidate_domain in candidate_domains:
         for entry in hass.config_entries.async_entries(candidate_domain):
@@ -634,7 +632,7 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
     # Monita is the canonical user-facing service namespace. The historical
     # integration domain remains registered as a compatibility alias so
     # existing automations keep working during the transition.
-    for service_domain in (SERVICE_DOMAIN, LEGACY_SERVICE_DOMAIN):
+    for service_domain in (SERVICE_DOMAIN,):
         if not hass.services.has_service(service_domain, SERVICE_SEND):
             hass.services.async_register(
                 service_domain,
