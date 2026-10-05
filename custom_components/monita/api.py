@@ -96,7 +96,7 @@ class MonitaClient:
 
     @staticmethod
     def _headers(token: str) -> dict[str, str]:
-        return {"X-Gotify-Key": token}
+        return {"X-Monita-Key": token}
 
     async def _error_detail(self, response: ClientResponse) -> str:
         try:
@@ -207,7 +207,7 @@ class MonitaClient:
 
         Newer Monita versions expose GET /application/current for exact token
         identity. Older versions are validated safely by POSTing an empty JSON
-        body to /message. Gotify authenticates before binding that request body,
+        body to /message. Monita authenticates before binding that request body,
         so a valid token returns HTTP 400 before message persistence while an
         invalid token returns HTTP 401/403.
         """
@@ -231,7 +231,7 @@ class MonitaClient:
             raise MonitaConnectionError(str(err)) from err
 
     async def _async_validate_application_token_legacy(self) -> None:
-        """Validate an app token against Gotify-compatible servers without identity API."""
+        """Validate an application token against Monita without the identity API."""
         try:
             async with self.session.post(
                 f"{self.server_url}/message",
@@ -464,7 +464,7 @@ class MonitaClient:
         attachment_ids: list[int] | None = None,
         channel_id: int | None = None,
     ) -> dict[str, Any]:
-        """Send a notification through the Gotify-compatible message API.
+        """Send a notification through the Monita message API.
 
         When channel_id is supplied, Monita client-token authentication is used
         and appid selects the destination Channel. This is the preferred path

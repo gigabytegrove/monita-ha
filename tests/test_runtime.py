@@ -9,23 +9,23 @@ import pytest
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 
-from custom_components.gotify_mu import (
+from custom_components.monita import (
     MonitaRuntimeData,
     _async_stream_loop,
     async_setup,
 )
-from custom_components.gotify_mu.api import (
+from custom_components.monita.api import (
     MonitaAttachment,
     MonitaAuthError,
     MonitaChannel,
     MonitaConnectionError,
     MonitaError,
 )
-from custom_components.gotify_mu.binary_sensor import (
+from custom_components.monita.binary_sensor import (
     MonitaConnectionBinarySensor,
     MonitaNativeBridgeBinarySensor,
 )
-from custom_components.gotify_mu.const import (
+from custom_components.monita.const import (
     CONF_CHANNEL_ID,
     CONF_DEFAULT_PRIORITY,
     CONF_SERVER_URL,
@@ -36,9 +36,9 @@ from custom_components.gotify_mu.const import (
     SERVICE_DOMAIN,
     SERVICE_SEND,
 )
-from custom_components.gotify_mu.event import MonitaMessageEventEntity
-from custom_components.gotify_mu.media import MonitaImage
-from custom_components.gotify_mu.notify import MonitaNotifyEntity
+from custom_components.monita.event import MonitaMessageEventEntity
+from custom_components.monita.media import MonitaImage
+from custom_components.monita.notify import MonitaNotifyEntity
 
 SERVER = "http://monita.local:8080"
 ENTRY_ID = "entry-runtime-test"
@@ -407,7 +407,7 @@ async def test_send_service_stages_image_and_preserves_message_controls(hass):
     with (
         patch.object(hass.config_entries, "async_entries", return_value=[entry]),
         patch(
-            "custom_components.gotify_mu.async_acquire_entity_image",
+            "custom_components.monita.async_acquire_entity_image",
             new=AsyncMock(return_value=image),
         ) as acquire,
     ):
@@ -488,7 +488,7 @@ async def test_server_chat_image_routes_directly_to_chat_channel(hass):
     with (
         patch.object(hass.config_entries, "async_entries", return_value=[entry]),
         patch(
-            "custom_components.gotify_mu.async_acquire_entity_image",
+            "custom_components.monita.async_acquire_entity_image",
             new=AsyncMock(return_value=image),
         ),
     ):
@@ -556,7 +556,7 @@ async def test_server_notification_channel_image_routes_directly_when_supported(
     with (
         patch.object(hass.config_entries, "async_entries", return_value=[entry]),
         patch(
-            "custom_components.gotify_mu.async_acquire_entity_image",
+            "custom_components.monita.async_acquire_entity_image",
             new=AsyncMock(return_value=image),
         ),
     ):
@@ -626,7 +626,7 @@ async def test_server_notification_image_refreshes_capabilities_after_server_upg
     with (
         patch.object(hass.config_entries, "async_entries", return_value=[entry]),
         patch(
-            "custom_components.gotify_mu.async_acquire_entity_image",
+            "custom_components.monita.async_acquire_entity_image",
             new=AsyncMock(return_value=image),
         ),
     ):
@@ -679,7 +679,7 @@ async def test_server_notification_image_falls_back_to_text_on_older_server(hass
     with (
         patch.object(hass.config_entries, "async_entries", return_value=[entry]),
         patch(
-            "custom_components.gotify_mu.async_acquire_entity_image",
+            "custom_components.monita.async_acquire_entity_image",
             new=AsyncMock(return_value=image),
         ),
     ):
@@ -735,7 +735,7 @@ async def test_image_upload_failure_prevents_message_send(hass):
     with (
         patch.object(hass.config_entries, "async_entries", return_value=[entry]),
         patch(
-            "custom_components.gotify_mu.async_acquire_entity_image",
+            "custom_components.monita.async_acquire_entity_image",
             new=AsyncMock(return_value=image),
         ),
         pytest.raises(HomeAssistantError, match="Monita rejected the image"),
@@ -774,7 +774,7 @@ async def test_image_upload_auth_failure_starts_reauth(hass):
     with (
         patch.object(hass.config_entries, "async_entries", return_value=[entry]),
         patch(
-            "custom_components.gotify_mu.async_acquire_entity_image",
+            "custom_components.monita.async_acquire_entity_image",
             new=AsyncMock(return_value=image),
         ),
         pytest.raises(HomeAssistantError, match="configured credential"),
@@ -821,7 +821,7 @@ async def test_message_failure_after_staging_leaves_server_orphan_for_expiry(has
     with (
         patch.object(hass.config_entries, "async_entries", return_value=[entry]),
         patch(
-            "custom_components.gotify_mu.async_acquire_entity_image",
+            "custom_components.monita.async_acquire_entity_image",
             new=AsyncMock(return_value=image),
         ),
         pytest.raises(HomeAssistantError, match="Could not connect to Monita"),
@@ -869,7 +869,7 @@ async def test_image_url_honors_entry_tls_setting(hass):
     with (
         patch.object(hass.config_entries, "async_entries", return_value=[entry]),
         patch(
-            "custom_components.gotify_mu.async_acquire_url_image",
+            "custom_components.monita.async_acquire_url_image",
             new=AsyncMock(return_value=image),
         ) as acquire,
     ):
