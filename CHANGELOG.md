@@ -2,15 +2,15 @@
 
 ### Legacy compatibility cleanup
 
-- Reduces the historical `custom_components/gotify_mu` implementation toward a compatibility-only bridge while keeping `custom_components/monita` canonical.
+- Reduces the historical `custom_components/monita` implementation toward a compatibility-only bridge while keeping `custom_components/monita` canonical.
 - Replaces duplicated notification, event, binary-sensor, and repair implementations with thin Monita compatibility shims.
-- Preserves repair issues under the historical `gotify_mu` domain for existing config entries so repair flows remain discoverable after upgrade.
+- Preserves repair issues under the historical `monita` domain for existing config entries so repair flows remain discoverable after upgrade.
 - Keeps legacy domain, manifest, config-flow, translation, service, credential, and entity compatibility required for non-destructive upgrades.
 
 ## 1.8.6
 
 - Continued the Monita identity cleanup across the Home Assistant integration.
-- Reduced the legacy `gotify_mu` compatibility component by delegating shared API, media, diagnostics, and helper logic to the canonical `monita` implementation.
+- Reduced the legacy `monita` compatibility component by delegating shared API, media, diagnostics, and helper logic to the canonical `monita` implementation.
 - Preserved the historical Home Assistant domain only for existing config-entry compatibility.
 - Corrected repair/help links to the current Monita for Home Assistant repository.
 - Added identity regression coverage so stale product branding cannot return unnoticed.
@@ -23,7 +23,7 @@
 
 - Restored the transparent Monita for Home Assistant icon requested for all icon surfaces.
 - Removed only the 512×512 gray canvas/background rectangle from the canonical HA icon SVG; all other artwork remains unchanged.
-- HACS root branding plus canonical `monita` and compatibility `gotify_mu` icon aliases are regenerated from the same transparent master.
+- HACS root branding plus canonical `monita` and compatibility `monita` icon aliases are regenerated from the same transparent master.
 - Full Monita for Home Assistant logo artwork is unchanged.
 
 ### Compatibility
@@ -37,7 +37,7 @@
 
 - Restored the full Monita for Home Assistant logo and icon directly from the supplied SVG masters.
 - The icon canvas/background is preserved exactly as supplied; the branding renderer no longer removes or alters it.
-- HACS root branding, the canonical `monita` component, and the existing-install `gotify_mu` compatibility component all use raster copies generated from those same supplied masters.
+- HACS root branding, the canonical `monita` component, and the existing-install `monita` compatibility component all use raster copies generated from those same supplied masters.
 - Root `icon.png` is the supplied HA icon and root `logo.png` is the supplied full HA logo.
 - GitHub documentation uses the supplied vector full logo directly for crisp rendering.
 - No redraw, recolor, crop, trace, simplification, background removal, or geometry change is performed.
@@ -45,7 +45,7 @@
 ### Compatibility
 
 - No configuration, entity, action, token, or automation migration is required.
-- Existing `monita` and compatibility `gotify_mu` installations update in place.
+- Existing `monita` and compatibility `monita` installations update in place.
 
 ## 1.8.3 — 2026-10-01
 
@@ -58,7 +58,7 @@
 ### Compatibility
 
 - No configuration migration is required.
-- Existing `monita` and compatibility `gotify_mu` installations update in place.
+- Existing `monita` and compatibility `monita` installations update in place.
 
 ## 1.8.2 - 2026-10-01
 
@@ -66,14 +66,14 @@
 
 - Replaced the Home Assistant integration, HACS repository card, release package, documentation, canonical domain, and existing-install compatibility branding with raster copies rendered directly from the exact SVG masters supplied on 2026-10-01.
 - Added the supplied full Monita for Home Assistant logo and standalone Home Assistant icon as the canonical vector source files.
-- The canonical `monita` and compatibility `gotify_mu` component directories now receive byte-identical logo/icon aliases generated from the same masters.
+- The canonical `monita` and compatibility `monita` component directories now receive byte-identical logo/icon aliases generated from the same masters.
 - Root-level HACS `logo.png` and `icon.png` are generated from the same approved artwork.
 - CI locks the supplied SVG masters by Git blob hash and verifies all generated compatibility aliases.
 
 ### Compatibility
 
 - No configuration, entity, action, token, or automation migration is required from 1.8.1.
-- Existing `gotify_mu` installations remain supported while new integrations can use the canonical `monita` domain.
+- Existing `monita` installations remain supported while new integrations can use the canonical `monita` domain.
 
 ## 1.8.1 - 2026-10-01
 
@@ -84,7 +84,7 @@
 
 ### Compatibility
 - No configuration or entity migration is required from 1.8.0.
-- Existing `gotify_mu` installations remain supported while new integrations can use the canonical `monita` domain.
+- Existing `monita` installations remain supported while new integrations can use the canonical `monita` domain.
 
 ## 1.8.0 - 2026-09-30
 
@@ -93,7 +93,7 @@
 - New installations use `monita` and the canonical `monita.send` action.
 - Retained the historical integration domain only as an existing-install compatibility component so previously stored config entries, entity identities, credentials, and automations remain loadable.
 - The canonical and compatibility components resolve Monita Channel targets across both domains, allowing mixed transition states without binding the action to whichever component loads first.
-- Canonical source classes use Monita naming; Gotify terminology remains only where it describes the compatible wire protocol or the historical compatibility layer.
+- Canonical source classes use Monita naming; the predecessor platform terminology remains only where it describes the compatible wire protocol or the historical compatibility layer.
 
 ### Messaging
 - Added `@username` mention support to the current Monita server/Web clients and Android conversation rendering.
@@ -144,7 +144,7 @@
 ### Compatibility
 
 - No user-facing configuration migration is required from 1.5.0.
-- The compatibility-safe technical domain remains `gotify_mu`, and existing config entries, selected Channels, entities, automations, credentials, and the `gotify_mu.send` action remain valid.
+- The compatibility-safe technical domain remains `monita`, and existing config entries, selected Channels, entities, automations, credentials, and the `monita.send` action remain valid.
 
 ## 1.5.0 - 2026-09-28
 
@@ -169,7 +169,7 @@
 - **Manage Channels** in the Home Assistant options UI. Reopening it queries Monita live so newly created or removed Channels can be reflected without adding another integration entry.
 - One Home Assistant notification entity per selected Channel that the configured Monita account is allowed to post to.
 - Selected read-only Channels remain eligible for inbound-message filtering without being exposed as push-capable notification entities.
-- **Push Message** as the user-facing Home Assistant action name for the compatibility-safe `gotify_mu.send` service.
+- **Push Message** as the user-facing Home Assistant action name for the compatibility-safe `monita.send` service.
 - Channel targeting in Push Message through a Monita notification-entity picker.
 - Channel name in inbound Home Assistant message-event data and selected-Channel details in diagnostics.
 
@@ -182,7 +182,7 @@
 
 ### Compatibility
 
-- The technical Home Assistant domain remains `gotify_mu` and the existing `gotify_mu.send` action ID remains valid.
+- The technical Home Assistant domain remains `monita` and the existing `monita.send` action ID remains valid.
 - Existing `entry_id` Push Message automations continue to work. New automations should use the Channel picker.
 - Existing application-token image workflows remain supported. Server-credential per-Channel staged image upload requires corresponding Monita server support and fails clearly rather than silently dropping the requested image.
 
@@ -191,22 +191,22 @@
 
 ### Rebranded
 
-- Renamed the user-facing integration to **Monita for Home Assistant**, formerly Gotify-MU for Home Assistant.
+- Renamed the user-facing integration to **Monita for Home Assistant**, formerly Monita for Home Assistant.
 - Updated the Home Assistant manifest, HACS display name, config flows, options, services UI, entities, diagnostics terminology, Repairs text, release workflow titles, and user-facing runtime messages to the Monita brand.
 - Adopted the approved Monita palette: Primary `#2563EB`, Blue `#3B82F6`, Cyan `#06B6D4`, Slate `#0F172A`, and Gray `#9CA3B8`.
 - Added explicit rebrand/upgrade documentation so existing users understand that the name change does not require reconfiguration.
 
 ### Compatibility
 
-- Preserved the Home Assistant integration domain `gotify_mu`, component directory `custom_components/gotify_mu`, and action `gotify_mu.send` so existing installations and automations continue to work.
+- Preserved the Home Assistant integration domain `monita`, component directory `custom_components/monita`, and action `monita.send` so existing installations and automations continue to work.
 - Preserved existing config-entry versions, entity unique IDs, token storage, API routes, WebSocket behavior, origin extras, and pairing contracts.
-- Internal Python class names that contain `GotifyMU` remain implementation details for this compatibility release and do not change the user-facing Monita identity.
-- Gotify protocol terminology remains only where it describes API compatibility or an established wire-format field.
+- Internal Python class names that contain `the predecessor platformMU` remain implementation details for this compatibility release and do not change the user-facing Monita identity.
+- the predecessor platform protocol terminology remains only where it describes API compatibility or an established wire-format field.
 
 ### Branding transition
 
 - The supplied **Monita for Home Assistant** brand sheet is the authoritative design source for the new visual identity.
-- Legacy Gotify-MU artwork remains transitional until the approved Monita icon/logo/banner files replace the active compatibility aliases and the branding lock is updated.
+- Legacy Monita artwork remains transitional until the approved Monita icon/logo/banner files replace the active compatibility aliases and the branding lock is updated.
 - The visual asset replacement is intentionally separated from textual/runtime rebranding so an incomplete or regenerated logo cannot silently become the canonical artwork.
 
 
@@ -214,8 +214,8 @@
 
 ### Added
 
-- Real image notifications for `gotify_mu.send` using `camera.*`, `image.*`, or advanced HTTP/HTTPS image sources.
-- Secure in-Home-Assistant image retrieval followed by multipart staging through `POST /application/current/attachment` with the configured Gotify MU application token.
+- Real image notifications for `monita.send` using `camera.*`, `image.*`, or advanced HTTP/HTTPS image sources.
+- Secure in-Home-Assistant image retrieval followed by multipart staging through `POST /application/current/attachment` with the configured Monita application token.
 - Staged attachment IDs on the normal `POST /message` payload while preserving priority, Markdown, caller extras, and the Home Assistant origin marker.
 - Bounded image downloads, raster MIME/signature validation, and source-URL secret redaction behavior.
 - Service UI selectors and doorbell/camera documentation for image notifications.
@@ -223,8 +223,8 @@
 
 ### Changed
 
-- Standard Home Assistant `notify.send_message` remains the stable text/title path; image notifications use `gotify_mu.send`.
-- Caller-supplied Gotify extras are merged with the integration origin marker instead of being replaced.
+- Standard Home Assistant `notify.send_message` remains the stable text/title path; image notifications use `monita.send`.
+- Caller-supplied the predecessor platform extras are merged with the integration origin marker instead of being replaced.
 
 ### Documentation
 
@@ -237,21 +237,21 @@
 
 ### Added
 
-- Native Home Assistant Repairs issue when Gotify MU rejects the stored native bridge credential.
+- Native Home Assistant Repairs issue when Monita rejects the stored native bridge credential.
 - Automatic repair-issue cleanup after successful bridge recovery, successful re-pairing, pairing removal, or integration removal.
-- Regression coverage for the notify entity, `gotify_mu.send`, inbound WebSocket channel/self-loop filtering, inbound event entity payloads, and both connection binary sensors.
+- Regression coverage for the notify entity, `monita.send`, inbound WebSocket channel/self-loop filtering, inbound event entity payloads, and both connection binary sensors.
 - Repairs regression coverage proving rejected native credentials create an actionable Home Assistant issue and successful recovery clears it.
 
 ### Changed
 
-- Native bridge instances are now tied to their Home Assistant config-entry ID so repair issues remain unique across multiple Gotify MU entries.
+- Native bridge instances are now tied to their Home Assistant config-entry ID so repair issues remain unique across multiple Monita entries.
 
 
 ## 1.0.3 - 2026-09-26
 
 ### Hardened
 
-- Locked all six approved Gotify-MU for Home Assistant branding assets to their exact Git blob hashes and dimensions.
+- Locked all six approved Monita for Home Assistant branding assets to their exact Git blob hashes and dimensions.
 - Added CI validation that fails if any canonical branding asset changes unexpectedly.
 - Added CI validation that requires `banner.png`, `logo.png`, and `icon.png` to remain byte-for-byte aliases of the approved canonical artwork.
 - Added regression coverage confirming the options flow remains based on Home Assistant's `OptionsFlowWithReload`, so changes such as enabling or disabling inbound messages reload the integration and take effect.
@@ -261,8 +261,8 @@
 
 ### Fixed
 
-- Replaced the incorrect/stale Home Assistant branding aliases with the exact user-supplied canonical Gotify-MU for Home Assistant logo and icon.
-- Added the canonical Gotify-MU for Home Assistant banner and updated the GitHub README to use it.
+- Replaced the incorrect/stale Home Assistant branding aliases with the exact user-supplied canonical Monita for Home Assistant logo and icon.
+- Added the canonical Monita for Home Assistant banner and updated the GitHub README to use it.
 - Preserved all six supplied branding files in the repository and documented them as immutable project branding.
 - Updated Home Assistant compatibility aliases (`logo.png`, `icon.png`, and `banner.png`) to the canonical non-`-q` artwork.
 
@@ -271,18 +271,18 @@
 
 ### Fixed
 
-- Restored the valid Gotify MU + Home Assistant logo and icon assets after the 1.0.0 branding PNGs were found to be truncated/corrupt.
+- Restored the valid Monita + Home Assistant logo and icon assets after the 1.0.0 branding PNGs were found to be truncated/corrupt.
 - Updated README image references to use the raw repository assets directly so GitHub renders the complete branding reliably.
 
 
 ## 1.0.0 - 2026-09-26
 
-Stable tandem release for Gotify MU 1.0. This promotes the validated native bridge baseline with application-token notifications, optional client-token inbound messages, native no-LLT pairing, authenticated bidirectional events, non-destructive repair, authenticated remote revoke, bridge health visibility, bounded delivery retry, reauthentication/reconfiguration, diagnostics redaction, and full Home Assistant validation coverage.
+Stable tandem release for Monita 1.0. This promotes the validated native bridge baseline with application-token notifications, optional client-token inbound messages, native no-LLT pairing, authenticated bidirectional events, non-destructive repair, authenticated remote revoke, bridge health visibility, bounded delivery retry, reauthentication/reconfiguration, diagnostics redaction, and full Home Assistant validation coverage.
 
 
 ## 1.0.0-rc1 - 2026-09-26
 
-Release candidate for the tandem Gotify MU 1.0 launch. Functionally identical to the validated 0.4.0 pre-1.0 hardening baseline, with versioning promoted for final cross-project compatibility validation against Gotify MU `release/v1.0.0-rc1`.
+Release candidate for the tandem Monita 1.0 launch. Functionally identical to the validated 0.4.0 pre-1.0 hardening baseline, with versioning promoted for final cross-project compatibility validation against Monita `release/v1.0.0-rc1`.
 
 ## 0.4.0 - 2026-09-26
 
@@ -292,38 +292,38 @@ Pre-1.0 native bridge hardening release.
 
 - Native bridge connectivity binary sensor with Paired, Connected, Degraded, and Repair required health.
 - Last sent/received timestamps, queue depth, retry count, dropped-event count, and last native delivery error.
-- Bounded exponential retry for transient Home Assistant → Gotify MU event delivery failures.
+- Bounded exponential retry for transient Home Assistant → Monita event delivery failures.
 - Authenticated remote native bridge revoke during unpair.
 - Force-local-remove recovery path when remote revocation cannot be completed.
 - Manual Home Assistant callback URL override even when Home Assistant auto-detects a URL.
 
 ### Fixed
 
-- Treats Gotify MU HTTP 401/403/404 pairing responses as invalid pairing codes instead of generic pairing failures.
+- Treats Monita HTTP 401/403/404 pairing responses as invalid pairing codes instead of generic pairing failures.
 - Native repair replaces only the native bridge credentials and leaves application-token notifications and optional client-token inbound messages intact.
 - Invalid inbound Bearer probes do not falsely mark a healthy bridge as repair-required.
 - Diagnostics include non-secret native health information while continuing to redact the shared secret and private webhook details.
 
 ### Testing
 
-- Adds real Home Assistant event-bus → Gotify MU delivery coverage.
+- Adds real Home Assistant event-bus → Monita delivery coverage.
 - Adds pairing 401 coverage, manual callback override coverage, repair coverage, remote revoke/removal coverage, repair-required health coverage, and diagnostics redaction coverage.
 
 ## 0.3.0 - 2026-09-26
 
 ### Added
 
-- Native Gotify MU ↔ Home Assistant pairing using one-time Gotify MU pairing codes.
-- Random private Home Assistant webhook registration for Gotify MU → Home Assistant events.
+- Native Monita ↔ Home Assistant pairing using one-time Monita pairing codes.
+- Random private Home Assistant webhook registration for Monita → Home Assistant events.
 - Bearer-secret validation for native inbound events.
-- Home Assistant event forwarding to the paired Gotify MU native event endpoint.
-- Native pairing management in the integration options, including clear Paired / Not paired state, repair, and removal without deleting the normal Gotify MU integration.
+- Home Assistant event forwarding to the paired Monita native event endpoint.
+- Native pairing management in the integration options, including clear Paired / Not paired state, repair, and removal without deleting the normal Monita integration.
 - Automatic Home Assistant webhook URL discovery with a manual reachable-URL fallback only when Home Assistant cannot determine one.
 - Native pairing and bridge coverage for successful pairing, invalid/expired/failed codes, invalid Bearer credentials, outbound event posting, and inbound event receipt.
 
 ### Changed
 
-- Gotify MU options are split into notification/inbound-message settings and native Home Assistant pairing management.
+- Monita options are split into notification/inbound-message settings and native Home Assistant pairing management.
 - The webhook component is now an integration dependency.
 - Integration version is now 0.3.0.
 
@@ -331,21 +331,21 @@ Pre-1.0 native bridge hardening release.
 
 - Native shared secrets and private webhook identifiers/URLs are redacted from diagnostics.
 - One-time pairing codes are never persisted.
-- Native Gotify MU payloads can fire Home Assistant events only; they are never interpreted as service calls.
+- Native Monita payloads can fire Home Assistant events only; they are never interpreted as service calls.
 - Native webhook Bearer credentials are compared using constant-time secret comparison.
 
 ## 0.2.0 - 2026-09-26
 
 ### Added
 
-- Dedicated Gotify MU HA integration logo and transparent Home Assistant connector icon based on the Gotify MU mascot.
-- Exact application-token validation and Channel identity using the Gotify MU application identity endpoint when available.
+- Dedicated Monita HA integration logo and transparent Home Assistant connector icon based on the Monita mascot.
+- Exact application-token validation and Channel identity using the Monita application identity endpoint when available.
 - Safe legacy token-validation fallback that does not create a notification.
 - Stable Channel-ID-based config-entry identity when supported by the server.
 - Config-entry `runtime_data` architecture.
 - Reauthentication flow for revoked or replaced credentials.
 - Reconfiguration flow for server URL, Channel display name, TLS validation, and optional client-token replacement/removal.
-- Optional realtime inbound Gotify MU messages over the client-token WebSocket stream.
+- Optional realtime inbound Monita messages over the client-token WebSocket stream.
 - Home Assistant Event entity for inbound Channel messages.
 - Inbound WebSocket connection-status binary sensor.
 - Automatic stream reconnect with bounded exponential backoff.
@@ -357,7 +357,7 @@ Pre-1.0 native bridge hardening release.
 
 ### Changed
 
-- `gotify_mu.send` is registered at integration setup rather than per config entry.
+- `monita.send` is registered at integration setup rather than per config entry.
 - Notification entities advertise title support using Home Assistant's current `NotifyEntity` API.
 - IoT classification is `local_push` for the direct self-hosted connection model.
 - Optional client token is used only for Channel discovery/inbound subscription; application tokens remain the outbound publishing credential.
@@ -372,7 +372,7 @@ Pre-1.0 native bridge hardening release.
 
 - Initial Home Assistant custom integration.
 - UI config flow.
-- Gotify MU notification entity.
-- `gotify_mu.send` action.
+- Monita notification entity.
+- `monita.send` action.
 - Multiple config entries.
 - HACS-compatible structure.
