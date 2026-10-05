@@ -791,7 +791,7 @@ The integration is intentionally conservative.
 - Native webhook authentication uses the exact Bearer secret.
 - Image notifications upload image bytes rather than leaking Home Assistant authentication or private camera URLs to clients.
 - Home Assistant tokens are never inserted into Monita extras for image delivery.
-- Large images are not embedded as base64 in Gotify message JSON.
+- Large images are not embedded as base64 in Monita message JSON.
 - Image data is not stored in message text or extras by this integration.
 
 ---
