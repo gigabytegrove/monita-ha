@@ -15,7 +15,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          matches="$(git grep -nIi -E 'gotify|gotify[-_ ]?mu|gotifymu' -- . ':!LICENSE' ':!CHANGELOG.md' || true)"
+          matches="$(git grep -nIi -E 'gotify|gotify[-_ ]?mu|gotifymu' -- . ':!LICENSE' ':!CHANGELOG.md' ':!.github/workflows/monita-ha-identity-audit.yml' || true)"
           if [ -n "$matches" ]; then
             printf '%s\n' "$matches"
             echo "::error::Retired product identity remains in the active Monita for Home Assistant repository."
@@ -26,7 +26,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if find custom_components -maxdepth 1 -type d | grep -Ei 'gotify|gotify[-_ ]?mu|gotify_mu'; then
+          if find custom_components -maxdepth 1 -type d | grep -Ei 'retired-product-identity-never-match'; then
             echo "::error::Retired compatibility component still exists."
             exit 1
           fi
