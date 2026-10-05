@@ -48,7 +48,6 @@ from .const import (
     DEFAULT_PRIORITY,
     DOMAIN,
     INTEGRATION_ORIGIN_EXTRA,
-    LEGACY_INTEGRATION_ORIGIN_EXTRA,
     LEGACY_SERVICE_DOMAIN,
     PLATFORMS,
     SERVICE_DOMAIN,
@@ -272,7 +271,7 @@ def _message_is_from_this_entry(entry_id: str, message: dict[str, Any]) -> bool:
     extras = message.get("extras")
     if not isinstance(extras, dict):
         return False
-    for key in (INTEGRATION_ORIGIN_EXTRA, LEGACY_INTEGRATION_ORIGIN_EXTRA):
+    for key in (INTEGRATION_ORIGIN_EXTRA,):
         origin = extras.get(key)
         if isinstance(origin, dict) and origin.get("entry_id") == entry_id:
             return True
