@@ -1,3 +1,14 @@
+## 1.8.14 — 2026-10-06
+
+### Fully validated legacy-to-Monita migration
+
+- Supersedes the incomplete 1.8.13 staging release with the complete migration implementation and regression coverage.
+- Provides a self-contained historical-domain config-flow platform so Home Assistant can import `gotify_mu.config_flow` before canonical Monita exists on disk.
+- Restores legacy config-entry schema migration before the domain handoff, including v1/v2 normalization and Channel selection migration.
+- Exercises Home Assistant's real config-entry setup path to verify the historical config-flow platform imports successfully.
+- Exercises the actual `gotify_mu` → `monita` config-entry handoff and verifies the original config-entry ID, data, options, and unique ID are preserved.
+- Keeps the historical integration migration-only while canonical Monita remains the production integration.
+
 ## 1.8.13 — 2026-10-06
 
 ### Production migration bootstrap correction
