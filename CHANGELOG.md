@@ -1,3 +1,13 @@
+## 1.8.13 — 2026-10-06
+
+### Production migration bootstrap correction
+
+- Replaces the historical-domain config flow with a self-contained migration-only registration module. Home Assistant imports `config_flow` before `async_setup_entry`, so the old flow can no longer import any canonical Monita modules before the migration payload has installed them.
+- Restores v1/v2-to-v3 config-entry schema migration inside the bootstrap itself before the domain handoff.
+- Keeps the legacy integration hidden from new-add flows while retaining the config-flow platform Home Assistant requires to load and migrate existing entries.
+- Preserves the existing config-entry ID, entity IDs, unique IDs, options, credentials, device ownership, and entity-registry ownership through the `gotify_mu` to `monita` handoff.
+- Adds regression coverage specifically for the migration bootstrap and legacy schema conversion.
+
 ## 1.8.12 — 2026-10-05
 
 ### Home Assistant compatibility fix for migration bootstrap
