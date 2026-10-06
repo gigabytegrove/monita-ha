@@ -199,3 +199,16 @@ async def test_bootstrap_replaces_legacy_entry_with_canonical_domain(hass) -> No
     assert dict(migrated.data) == dict(entry.data)
     assert dict(migrated.options) == dict(entry.options)
     assert created_tasks
+
+
+def test_legacy_manifest_stays_hidden_after_migration() -> None:
+    """The bootstrap must not render as a second Devices & services card."""
+    import json
+
+    manifest = json.loads(
+        Path("custom_components/gotify_mu/manifest.json").read_text()
+    )
+
+    assert manifest["domain"] == "gotify_mu"
+    assert manifest["config_flow"] is False
+    assert manifest["integration_type"] == "helper"
