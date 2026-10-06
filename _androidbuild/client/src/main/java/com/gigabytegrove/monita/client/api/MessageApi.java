@@ -1,0 +1,103 @@
+package com.gigabytegrove.monita.client.api;
+
+import com.gigabytegrove.monita.client.CollectionFormats.*;
+
+import retrofit2.Call;
+import retrofit2.http.*;
+
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import okhttp3.MultipartBody;
+
+import com.gigabytegrove.monita.client.model.CreateMessage;
+import com.gigabytegrove.monita.client.model.Error;
+import com.gigabytegrove.monita.client.model.Message;
+import com.gigabytegrove.monita.client.model.PagedMessages;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+public interface MessageApi {
+  /**
+   * Create a message.
+   * __NOTE__: When authenticating with a client token or basic auth, the request body must include \&quot;appid\&quot; referencing an application owned by the authenticated user. When authenticating with an application token, the application is derived from the token and any \&quot;appid\&quot; in the body is ignored.
+   * @param body the message to add (required)
+   * @return Call&lt;Message&gt;
+   */
+  @Headers({
+    "Content-Type:application/json"
+  })
+  @POST("message")
+  Call<Message> createMessage(
+    @retrofit2.http.Body CreateMessage body
+  );
+
+  /**
+   * Delete all messages from a specific application.
+   * 
+   * @param id the application id (required)
+   * @return Call&lt;Void&gt;
+   */
+  @DELETE("application/{id}/message")
+  Call<Void> deleteAppMessages(
+    @retrofit2.http.Path("id") Long id
+  );
+
+  /**
+   * Deletes a message with an id.
+   * 
+   * @param id the message id (required)
+   * @return Call&lt;Void&gt;
+   */
+  @DELETE("message/{id}")
+  Call<Void> deleteMessage(
+    @retrofit2.http.Path("id") Long id
+  );
+
+  /**
+   * Delete all messages.
+   * 
+   * @return Call&lt;Void&gt;
+   */
+  @DELETE("message")
+  Call<Void> deleteMessages();
+    
+
+  /**
+   * Return all messages from a specific application.
+   * 
+   * @param id the application id (required)
+   * @param limit the maximal amount of messages to return (optional, default to 100)
+   * @param since return all messages with an ID less than this value (optional)
+   * @return Call&lt;PagedMessages&gt;
+   */
+  @GET("application/{id}/message")
+  Call<PagedMessages> getAppMessages(
+    @retrofit2.http.Path("id") Long id, @retrofit2.http.Query("limit") Integer limit, @retrofit2.http.Query("since") Long since
+  );
+
+  /**
+   * Return all messages.
+   * 
+   * @param limit the maximal amount of messages to return (optional, default to 100)
+   * @param since return all messages with an ID less than this value (optional)
+   * @return Call&lt;PagedMessages&gt;
+   */
+  @GET("message")
+  Call<PagedMessages> getMessages(
+    @retrofit2.http.Query("limit") Integer limit, @retrofit2.http.Query("since") Long since
+  );
+
+  /**
+   * Websocket, return newly created messages.
+   * 
+   * @return Call&lt;Message&gt;
+   */
+  @GET("stream")
+  Call<Message> streamMessages();
+    
+
+}
