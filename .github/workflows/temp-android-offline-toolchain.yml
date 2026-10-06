@@ -214,7 +214,8 @@ jobs:
           tar -C /tmp/offline -I 'zstd -10 -T0' -cf /tmp/monita-gradle-home.tar.zst gradle-home
           sha256sum /tmp/monita-android-sdk.tar.zst | tee /tmp/monita-android-sdk.sha256
           sha256sum /tmp/monita-gradle-home.tar.zst | tee /tmp/monita-gradle-home.sha256
-          ls -lh /tmp/monita-android-sdk.tar.zst /tmp/monita-gradle-home.tar.zst
+          split -b 280M -d -a 1 /tmp/monita-gradle-home.tar.zst /tmp/monita-gradle-home.part-
+          ls -lh /tmp/monita-android-sdk.tar.zst /tmp/monita-gradle-home.tar.zst /tmp/monita-gradle-home.part-*
 
       - uses: actions/upload-artifact@v4
         with:
@@ -227,9 +228,21 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: monita-gradle-home
-          path: |
-            /tmp/monita-gradle-home.tar.zst
-            /tmp/monita-gradle-home.sha256
+          name: monita-gradle-home-part-0
+          path: /tmp/monita-gradle-home.part-0
+          retention-days: 1
+          compression-level: 0
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: monita-gradle-home-part-1
+          path: /tmp/monita-gradle-home.part-1
+          retention-days: 1
+          compression-level: 0
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: monita-gradle-home-checksum
+          path: /tmp/monita-gradle-home.sha256
           retention-days: 1
           compression-level: 0
