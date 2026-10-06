@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.gotify_mu import async_migrate_entry
+from custom_components.gotify_mu import async_migrate_entry, async_setup_entry
 from custom_components.gotify_mu.config_flow import LegacyMonitaMigrationFlow
 
 
@@ -163,3 +163,39 @@ async def test_home_assistant_can_import_legacy_config_flow_before_setup(hass) -
         new=AsyncMock(return_value=True),
     ):
         assert await hass.config_entries.async_setup(entry.entry_id) is True
+
+
+async def test_bootstrap_replaces_legacy_entry_with_canonical_domain(hass) -> None:
+    """Exercise the actual domain handoff while preserving the config-entry ID."""
+    entry = MockConfigEntry(
+        domain="gotify_mu",
+        title="Legacy Monita",
+        data={"server_url": "https://monita.example"},
+        options={},
+        version=3,
+        minor_version=0,
+        unique_id="https://monita.example|server",
+    )
+    entry.add_to_hass(hass)
+
+    created_tasks = []
+
+    def capture_task(coro, *args, **kwargs):
+        created_tasks.append((coro, args, kwargs))
+        coro.close()
+        return MagicMock()
+
+    with (
+        patch("custom_components.gotify_mu._copy_payload"),
+        patch.object(hass, "async_create_task", side_effect=capture_task),
+    ):
+        assert await async_setup_entry(hass, entry) is True
+
+    migrated = hass.config_entries.async_get_entry(entry.entry_id)
+    assert migrated is not None
+    assert migrated.entry_id == entry.entry_id
+    assert migrated.domain == "monita"
+    assert migrated.unique_id == entry.unique_id
+    assert dict(migrated.data) == dict(entry.data)
+    assert dict(migrated.options) == dict(entry.options)
+    assert created_tasks
