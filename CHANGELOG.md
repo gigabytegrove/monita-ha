@@ -1,3 +1,13 @@
+## 1.8.8 — 2026-10-05
+
+### Existing-install upgrade recovery
+
+- Restores the historical Home Assistant config-entry compatibility component required by installations whose stored domain still uses the predecessor technical identifier.
+- Keeps all user-facing integration names, config flows, entities, repairs, and translations branded as **Monita for Home Assistant**.
+- Restores release packaging for both the canonical `monita` component and the compatibility component so HACS upgrades can repair existing installations in place.
+- Restores validation and branding generation for the compatibility component.
+- No delete/re-add or credential re-entry is required for an existing installation.
+
 ## 1.8.7 — 2026-10-04
 
 ### Legacy compatibility cleanup
