@@ -13,7 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
-from homeassistant.loader import async_clear_custom_components_cache
+from homeassistant.loader import DATA_CUSTOM_COMPONENTS, DATA_INTEGRATIONS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -149,7 +149,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         ) from err
 
     importlib.invalidate_caches()
-    async_clear_custom_components_cache(hass)
+
+    # Home Assistant primes custom integration discovery during startup. Older
+    # supported HA releases do not expose async_clear_custom_components_cache(),
+    # so invalidate the same caches directly using the long-standing loader keys.
+    # This keeps the migration compatible across HA releases and makes the newly
+    # installed canonical Monita component discoverable immediately.
+    hass.data.pop(DATA_CUSTOM_COMPONENTS, None)
+    integration_cache = hass.data.get(DATA_INTEGRATIONS)
+    if isinstance(integration_cache, dict):
+        integration_cache.pop(CANONICAL_DOMAIN, None)
 
     duplicate = next(
         (
