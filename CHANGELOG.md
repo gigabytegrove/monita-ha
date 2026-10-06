@@ -1,3 +1,13 @@
+## 1.8.15 — 2026-10-06
+
+### Remove duplicate post-migration integration card
+
+- Marks the historical `gotify_mu` bootstrap as a Home Assistant `helper` integration instead of a normal service integration.
+- Home Assistant's Devices & services dashboard synthesizes a YAML-style card for loaded, non-config-flow service integrations that have no config entry. After migration, the bootstrap is intentionally left with no config entry, which caused the second unmanaged Monita card.
+- Home Assistant excludes helper integrations from that synthetic integration-card path, so the migration bootstrap can remain available for older installs without appearing as a second Monita integration after the handoff.
+- The canonical `monita` integration remains the only user-facing Monita integration after migration.
+- Adds regression coverage that locks the bootstrap manifest to `integration_type: helper` and `config_flow: false`.
+
 ## 1.8.14 — 2026-10-06
 
 ### Fully validated legacy-to-Monita migration
