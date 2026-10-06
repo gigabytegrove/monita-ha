@@ -1,3 +1,14 @@
+## 1.8.9 — 2026-10-05
+
+### Automatic Home Assistant domain migration
+
+- Adds the missing automatic migration from the historical Home Assistant integration domain to the canonical `monita` domain.
+- Existing installations are migrated automatically during setup; no delete/re-add, token re-entry, or manual config-entry editing is required.
+- Preserves the existing Home Assistant config-entry ID during migration so device/entity registry ownership, entity identity, dashboards, and automations stay attached to the same entry.
+- Re-indexes the config entry under the canonical Monita domain and immediately schedules canonical Monita setup.
+- Keeps the historical component only as a one-way migration bootstrap for installations that have not migrated yet.
+- Refuses to overwrite a distinct canonical Monita entry with the same unique ID, preventing destructive duplicate migration.
+
 ## 1.8.8 — 2026-10-05
 
 ### Existing-install upgrade recovery
