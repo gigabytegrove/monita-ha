@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+
 from custom_components.gotify_mu import async_migrate_entry
 from custom_components.gotify_mu.config_flow import LegacyMonitaMigrationFlow
-from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 
 def test_legacy_config_flow_is_migration_only_and_self_contained() -> None:
