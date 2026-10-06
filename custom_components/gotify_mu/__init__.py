@@ -10,11 +10,9 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import (
-    device_registry as dr,
-    entity_registry as er,
-    issue_registry as ir,
-)
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.loader import async_clear_custom_components_cache
 
 _LOGGER = logging.getLogger(__name__)
