@@ -11,17 +11,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Reject retired product identity outside credit
+      - name: Reject legacy-named paths outside compatibility component
         shell: bash
         run: |
           set -euo pipefail
-          one="$(printf '%s%s' 'go' 'tify')"
-          two="$(printf '%s%s%s' 'go' 'tify' '-mu')"
-          three="$(printf '%s%s%s' 'go' 'tify' '_mu')"
-          four="$(printf '%s%s%s' 'go' 'tify' 'mu')"
-          matches="$(git grep -nIi -E "$one|$two|$three|$four" -- . ':!LICENSE' ':!.github/workflows/monita-ha-identity-audit.yml' || true)"
+          legacy_path="$(printf '%s%s%s' 'go' 'tify' '_mu')"
+          legacy_dash="$(printf '%s%s%s' 'go' 'tify' '-mu')"
+          matches="$(find . -path './.git' -prune -o -type f -print \
+            | sed 's#^./##' \
+            | grep -Ei "${legacy_path}|${legacy_dash}" \
+            | grep -v "^custom_components/${legacy_path}/" || true)"
           if [ -n "$matches" ]; then
             printf '%s\n' "$matches"
-            echo "::error::Retired product identity remains outside the upstream credit."
+            echo "::error::Legacy HA identity remains in active paths outside the required compatibility component."
+            exit 1
+          fi
+
+      - name: Reject stale active product branding
+        shell: bash
+        run: |
+          set -euo pipefail
+          one="$(printf '%s%s' 'Go' 'tify')"
+          matches="$(git grep -nI -E "${one}[ -]MU|${one}-MU" -- . \
+            ':!CHANGELOG.md' ':!README.md' ':!docs/**' ':!custom_components/gotify_mu/**' \
+            ':!.github/workflows/monita-ha-identity-audit.yml' || true)"
+          if [ -n "$matches" ]; then
+            printf '%s\n' "$matches"
+            echo "::error::Stale predecessor product branding remains in active Monita HA code."
             exit 1
           fi
