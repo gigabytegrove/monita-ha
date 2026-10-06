@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+import subprocess
+import sys
 from types import SimpleNamespace
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from custom_components.gotify_mu import async_migrate_entry
 from custom_components.gotify_mu.config_flow import LegacyMonitaMigrationFlow
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 
 def test_legacy_config_flow_is_migration_only_and_self_contained() -> None:
@@ -115,3 +118,47 @@ async def test_unsupported_future_legacy_schema_is_not_modified() -> None:
 
     assert await async_migrate_entry(hass, entry) is False
     update.assert_not_called()
+
+
+def test_legacy_config_flow_imports_when_canonical_package_is_unavailable() -> None:
+    """Reproduce HA's pre-setup config-flow import with Monita not installed yet."""
+    script = r"""
+import builtins
+
+real_import = builtins.__import__
+
+def guarded_import(name, globals=None, locals=None, fromlist=(), level=0):
+    if name == "custom_components.monita" or name.startswith("custom_components.monita."):
+        raise ModuleNotFoundError("canonical Monita intentionally unavailable")
+    return real_import(name, globals, locals, fromlist, level)
+
+builtins.__import__ = guarded_import
+import custom_components.gotify_mu.config_flow  # noqa: F401
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+
+
+async def test_home_assistant_can_import_legacy_config_flow_before_setup(hass) -> None:
+    """Exercise the same HA setup phase that produced 'config_flow not found'."""
+    entry = MockConfigEntry(
+        domain="gotify_mu",
+        title="Legacy Monita",
+        data={"server_url": "https://monita.example"},
+        options={},
+        version=3,
+        minor_version=0,
+        unique_id="https://monita.example|server",
+    )
+    entry.add_to_hass(hass)
+
+    with patch(
+        "custom_components.gotify_mu.async_setup_entry",
+        new=AsyncMock(return_value=True),
+    ):
+        assert await hass.config_entries.async_setup(entry.entry_id) is True
