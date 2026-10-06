@@ -689,8 +689,95 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
+
+_CANONICAL_DOMAIN = "monita"
+
+
+def _clone_entry_for_monita(entry: ConfigEntry) -> ConfigEntry:
+    """Clone a legacy-domain config entry into the canonical Monita domain.
+
+    The entry_id is deliberately preserved so entity/device registry ownership,
+    dashboards, automations, and historical entity identity stay attached to the
+    same Home Assistant config entry during the domain migration.
+    """
+    return ConfigEntry(
+        created_at=entry.created_at,
+        data=dict(entry.data),
+        disabled_by=entry.disabled_by,
+        discovery_keys=entry.discovery_keys,
+        domain=_CANONICAL_DOMAIN,
+        entry_id=entry.entry_id,
+        minor_version=entry.minor_version,
+        modified_at=entry.modified_at,
+        options=dict(entry.options),
+        pref_disable_new_entities=entry.pref_disable_new_entities,
+        pref_disable_polling=entry.pref_disable_polling,
+        source=entry.source,
+        subentries_data=[
+            subentry.as_dict() for subentry in entry.subentries.values()
+        ],
+        title=entry.title,
+        unique_id=entry.unique_id,
+        version=entry.version,
+    )
+
+
+async def _async_migrate_legacy_domain(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+) -> bool:
+    """Replace the historical config-entry domain with canonical Monita.
+
+    Home Assistant freezes ConfigEntry.domain, so async_update_entry() cannot
+    rename the domain. Replace the manager entry with a canonical clone while
+    preserving the original entry_id so entity/device registry ownership and
+    entity identity are preserved.
+    """
+    if entry.domain == _CANONICAL_DOMAIN:
+        return False
+
+    duplicate = next(
+        (
+            candidate
+            for candidate in hass.config_entries.async_entries(_CANONICAL_DOMAIN)
+            if candidate.entry_id != entry.entry_id
+            and entry.unique_id is not None
+            and candidate.unique_id == entry.unique_id
+        ),
+        None,
+    )
+    if duplicate is not None:
+        _LOGGER.error(
+            "Cannot migrate legacy Monita entry %s because canonical entry %s "
+            "already uses unique_id %s",
+            entry.entry_id,
+            duplicate.entry_id,
+            entry.unique_id,
+        )
+        return False
+
+    migrated = _clone_entry_for_monita(entry)
+    hass.config_entries._entries[entry.entry_id] = migrated  # noqa: SLF001
+    hass.config_entries._async_schedule_save()  # noqa: SLF001
+    hass.config_entries.async_update_issues()
+
+    _LOGGER.warning(
+        "Migrated Home Assistant config entry %s from the historical domain "
+        "to canonical Monita while preserving its entry_id",
+        entry.entry_id,
+    )
+
+    hass.async_create_task(
+        hass.config_entries.async_setup(migrated.entry_id),
+        f"Set up migrated Monita entry {migrated.entry_id}",
+    )
+    return True
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: MonitaConfigEntry) -> bool:
-    """Set up one Monita server or legacy Channel entry."""
+    """Set up one Monita server or migrate a historical-domain entry."""
+    if await _async_migrate_legacy_domain(hass, entry):
+        return True
     app_token = entry.data.get(CONF_APP_TOKEN, "")
     client_token = entry.data.get(CONF_CLIENT_TOKEN)
     client = MonitaClient(
