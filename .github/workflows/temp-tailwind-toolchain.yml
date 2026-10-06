@@ -1,0 +1,41 @@
+name: Temporary Tailwind Toolchain
+on:
+  push:
+    paths:
+      - ".github/workflows/temp-tailwind-toolchain.yml"
+  workflow_dispatch:
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Prepare Tailwind CLI
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/monita-tailwind
+          cd /tmp/monita-tailwind
+          cat > package.json <<'EOF'
+          {
+            "private": true,
+            "devDependencies": {
+              "@tailwindcss/cli": "4.3.3",
+              "tailwindcss": "4.3.3"
+            }
+          }
+          EOF
+          npm install --no-audit --no-fund
+          tar -C /tmp/monita-tailwind -I 'zstd -10 -T0' -cf /tmp/monita-tailwind-node-modules.tar.zst node_modules package.json package-lock.json
+          sha256sum /tmp/monita-tailwind-node-modules.tar.zst | tee /tmp/monita-tailwind-node-modules.sha256
+          ls -lh /tmp/monita-tailwind-node-modules.tar.zst
+      - uses: actions/upload-artifact@v4
+        with:
+          name: monita-tailwind-node-modules
+          path: |
+            /tmp/monita-tailwind-node-modules.tar.zst
+            /tmp/monita-tailwind-node-modules.sha256
+          retention-days: 1
+          compression-level: 0
