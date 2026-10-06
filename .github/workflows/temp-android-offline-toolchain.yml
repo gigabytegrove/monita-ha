@@ -126,6 +126,10 @@ jobs:
                       isDebuggable = false
                   }
               }
+              buildFeatures {
+                  viewBinding = true
+                  buildConfig = true
+              }
               compileOptions {
                   sourceCompatibility = JavaVersion.VERSION_17
                   targetCompatibility = JavaVersion.VERSION_17
@@ -212,10 +216,12 @@ jobs:
 
           tar -C /tmp/offline -I 'zstd -10 -T0' -cf /tmp/monita-android-sdk.tar.zst android-sdk
           tar -C /tmp/offline -I 'zstd -10 -T0' -cf /tmp/monita-gradle-home.tar.zst gradle-home
+          tar -C "$GRADLE_USER_HOME/caches" -I 'zstd -10 -T0' -cf /tmp/monita-gradle-modules.tar.zst modules-2
           sha256sum /tmp/monita-android-sdk.tar.zst | tee /tmp/monita-android-sdk.sha256
           sha256sum /tmp/monita-gradle-home.tar.zst | tee /tmp/monita-gradle-home.sha256
+          sha256sum /tmp/monita-gradle-modules.tar.zst | tee /tmp/monita-gradle-modules.sha256
           split -b 280M -d -a 1 /tmp/monita-gradle-home.tar.zst /tmp/monita-gradle-home.part-
-          ls -lh /tmp/monita-android-sdk.tar.zst /tmp/monita-gradle-home.tar.zst /tmp/monita-gradle-home.part-*
+          ls -lh /tmp/monita-android-sdk.tar.zst /tmp/monita-gradle-home.tar.zst /tmp/monita-gradle-home.part-* /tmp/monita-gradle-modules.tar.zst
 
       - uses: actions/upload-artifact@v4
         with:
@@ -244,5 +250,14 @@ jobs:
         with:
           name: monita-gradle-home-checksum
           path: /tmp/monita-gradle-home.sha256
+          retention-days: 1
+          compression-level: 0
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: monita-gradle-modules
+          path: |
+            /tmp/monita-gradle-modules.tar.zst
+            /tmp/monita-gradle-modules.sha256
           retention-days: 1
           compression-level: 0
