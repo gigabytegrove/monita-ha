@@ -1,3 +1,13 @@
+## 1.8.16 — 2026-10-06
+
+### Finalized duplicate-card cleanup release
+
+- Promotes the fully tested duplicate-card cleanup from the complete validated tree.
+- Keeps the historical `gotify_mu` migration bootstrap classified as a Home Assistant `helper`, which prevents Home Assistant's Devices & services dashboard from synthesizing a second unmanaged YAML-style integration card after migration.
+- Preserves the canonical `monita` integration as the only user-facing Monita card.
+- Includes the migration regression test that locks `config_flow: false` and `integration_type: helper` for the legacy bootstrap.
+- Built as a single atomic release commit so the published tag cannot point at an intermediate, partially validated state.
+
 ## 1.8.15 — 2026-10-06
 
 ### Remove duplicate post-migration integration card
