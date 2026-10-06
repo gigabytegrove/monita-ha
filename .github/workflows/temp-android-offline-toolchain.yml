@@ -205,18 +205,31 @@ jobs:
           cp -a "$ANDROID_HOME/platforms/android-36" /tmp/offline/android-sdk/
           mkdir -p /tmp/offline/android-sdk/build-tools
           cp -a "$ANDROID_HOME/build-tools/36.0.0" /tmp/offline/android-sdk/build-tools/
+          cp -a "$ANDROID_HOME/build-tools/35.0.0" /tmp/offline/android-sdk/build-tools/ || true
           cp -a "$ANDROID_HOME/platform-tools" /tmp/offline/android-sdk/
           cp -a "$ANDROID_HOME/licenses" /tmp/offline/android-sdk/ || true
           cp -a "$GRADLE_USER_HOME" /tmp/offline/gradle-home
-          tar -C /tmp/offline -I 'zstd -10 -T0' -cf /tmp/monita-android-offline-toolchain.tar.zst android-sdk gradle-home
-          sha256sum /tmp/monita-android-offline-toolchain.tar.zst | tee /tmp/monita-android-offline-toolchain.sha256
-          ls -lh /tmp/monita-android-offline-toolchain.tar.zst
+
+          tar -C /tmp/offline -I 'zstd -10 -T0' -cf /tmp/monita-android-sdk.tar.zst android-sdk
+          tar -C /tmp/offline -I 'zstd -10 -T0' -cf /tmp/monita-gradle-home.tar.zst gradle-home
+          sha256sum /tmp/monita-android-sdk.tar.zst | tee /tmp/monita-android-sdk.sha256
+          sha256sum /tmp/monita-gradle-home.tar.zst | tee /tmp/monita-gradle-home.sha256
+          ls -lh /tmp/monita-android-sdk.tar.zst /tmp/monita-gradle-home.tar.zst
 
       - uses: actions/upload-artifact@v4
         with:
-          name: monita-android-offline-toolchain
+          name: monita-android-sdk
           path: |
-            /tmp/monita-android-offline-toolchain.tar.zst
-            /tmp/monita-android-offline-toolchain.sha256
+            /tmp/monita-android-sdk.tar.zst
+            /tmp/monita-android-sdk.sha256
+          retention-days: 1
+          compression-level: 0
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: monita-gradle-home
+          path: |
+            /tmp/monita-gradle-home.tar.zst
+            /tmp/monita-gradle-home.sha256
           retention-days: 1
           compression-level: 0
