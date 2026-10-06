@@ -1,0 +1,114 @@
+package com.gigabytegrove.monita.client.api;
+
+import com.gigabytegrove.monita.client.CollectionFormats.*;
+
+import retrofit2.Call;
+import retrofit2.http.*;
+
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import okhttp3.MultipartBody;
+
+import com.gigabytegrove.monita.client.model.Application;
+import com.gigabytegrove.monita.client.model.ApplicationParams;
+import com.gigabytegrove.monita.client.model.Error;
+import java.io.File;
+import com.gigabytegrove.monita.client.model.SecurityUpdateAction;
+import com.gigabytegrove.monita.client.model.SecurityUpdateActionResponse;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+public interface ApplicationApi {
+  /**
+   * Create an application.
+   * 
+   * @param body the application to add (required)
+   * @return Call&lt;Application&gt;
+   */
+  @Headers({
+    "Content-Type:application/json"
+  })
+  @POST("application")
+  Call<Application> createApp(
+    @retrofit2.http.Body ApplicationParams body
+  );
+
+  /**
+   * Delete an application.
+   * Requires elevated authentication.
+   * @param id the application id (required)
+   * @return Call&lt;Void&gt;
+   */
+  @DELETE("application/{id}")
+  Call<Void> deleteApp(
+    @retrofit2.http.Path("id") Long id
+  );
+
+  /**
+   * Return all applications.
+   * 
+   * @return Call&lt;List&lt;Application&gt;&gt;
+   */
+  @GET("application")
+  Call<List<Application>> getApps();
+    
+
+  /**
+   * Deletes an image of an application.
+   * 
+   * @param id the application id (required)
+   * @return Call&lt;Void&gt;
+   */
+  @DELETE("application/{id}/image")
+  Call<Void> removeAppImage(
+    @retrofit2.http.Path("id") Long id
+  );
+
+  /**
+   * Perform security updates on an application.
+   * Requires elevated authentication.
+   * @param id the application id (required)
+   * @param body security update action descriptor (required)
+   * @return Call&lt;SecurityUpdateActionResponse&gt;
+   */
+  @Headers({
+    "Content-Type:application/json"
+  })
+  @PUT("application/{id}/security")
+  Call<SecurityUpdateActionResponse> updateAppSecurity(
+    @retrofit2.http.Path("id") Long id, @retrofit2.http.Body SecurityUpdateAction body
+  );
+
+  /**
+   * Update an application.
+   * 
+   * @param id the application id (required)
+   * @param body the application to update (required)
+   * @return Call&lt;Application&gt;
+   */
+  @Headers({
+    "Content-Type:application/json"
+  })
+  @PUT("application/{id}")
+  Call<Application> updateApplication(
+    @retrofit2.http.Path("id") Long id, @retrofit2.http.Body ApplicationParams body
+  );
+
+  /**
+   * Upload an image for an application.
+   * 
+   * @param id the application id (required)
+   * @param _file the application image (required)
+   * @return Call&lt;Application&gt;
+   */
+  @retrofit2.http.Multipart
+  @POST("application/{id}/image")
+  Call<Application> uploadAppImage(
+    @retrofit2.http.Path("id") Long id, @retrofit2.http.Part MultipartBody.Part _file
+  );
+
+}

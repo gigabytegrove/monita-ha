@@ -1,0 +1,88 @@
+package com.gigabytegrove.monita.client.api;
+
+import com.gigabytegrove.monita.client.CollectionFormats.*;
+
+import retrofit2.Call;
+import retrofit2.http.*;
+
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import okhttp3.MultipartBody;
+
+import com.gigabytegrove.monita.client.model.Client;
+import com.gigabytegrove.monita.client.model.ClientParams;
+import com.gigabytegrove.monita.client.model.ElevateRequest;
+import com.gigabytegrove.monita.client.model.Error;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+public interface ClientApi {
+  /**
+   * Create a client.
+   * 
+   * @param body the client to add (required)
+   * @return Call&lt;Client&gt;
+   */
+  @Headers({
+    "Content-Type:application/json"
+  })
+  @POST("client")
+  Call<Client> createClient(
+    @retrofit2.http.Body ClientParams body
+  );
+
+  /**
+   * Delete a client.
+   * Requires elevated authentication.
+   * @param id the client id (required)
+   * @return Call&lt;Void&gt;
+   */
+  @DELETE("client/{id}")
+  Call<Void> deleteClient(
+    @retrofit2.http.Path("id") Long id
+  );
+
+  /**
+   * Elevate a client session.
+   * Requires elevated authentication.
+   * @param id the client id (required)
+   * @param body the elevation request (required)
+   * @return Call&lt;Void&gt;
+   */
+  @Headers({
+    "Content-Type:application/json"
+  })
+  @POST("client/{id}/elevate")
+  Call<Void> elevateClient(
+    @retrofit2.http.Path("id") Long id, @retrofit2.http.Body ElevateRequest body
+  );
+
+  /**
+   * Return all clients.
+   * 
+   * @return Call&lt;List&lt;Client&gt;&gt;
+   */
+  @GET("client")
+  Call<List<Client>> getClients();
+    
+
+  /**
+   * Update a client.
+   * 
+   * @param id the client id (required)
+   * @param body the client to update (required)
+   * @return Call&lt;Client&gt;
+   */
+  @Headers({
+    "Content-Type:application/json"
+  })
+  @PUT("client/{id}")
+  Call<Client> updateClient(
+    @retrofit2.http.Path("id") Long id, @retrofit2.http.Body ClientParams body
+  );
+
+}
