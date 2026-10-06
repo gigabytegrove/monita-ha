@@ -1,3 +1,14 @@
+## 1.8.11 — 2026-10-05
+
+### Complete self-contained migration release
+
+- Supersedes the incomplete 1.8.10 release, which was published before the self-contained migration payload was present.
+- Ships the legacy-domain bootstrap and the complete canonical Monita payload together in the same HACS-installed historical component directory.
+- Fixes startup when only `custom_components/gotify_mu` exists by removing all pre-migration imports of `custom_components.monita`.
+- Installs `custom_components/monita` from the bundled payload, clears Home Assistant's custom-component loader cache, migrates the config entry domain, and schedules canonical Monita setup.
+- Preserves the existing config-entry ID and migrates entity-platform ownership, device identifiers, options, credentials, selected channels, and entity IDs.
+- Leaves no requirement for the user to delete/re-add the integration or manually copy files.
+
 ## 1.8.10 — 2026-10-05
 
 ### Self-contained legacy-to-Monita migration bootstrap
