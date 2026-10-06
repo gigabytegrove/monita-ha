@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib
 import logging
 import shutil
+from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +21,11 @@ _LOGGER = logging.getLogger(__name__)
 LEGACY_DOMAIN = "gotify_mu"
 CANONICAL_DOMAIN = "monita"
 _PAYLOAD_DIR = "_monita_payload"
+
+CONF_SERVER_URL = "server_url"
+CONF_APP_TOKEN = "app_token"
+CONF_CHANNEL_ID = "channel_id"
+CONF_CHANNEL_IDS = "channel_ids"
 
 
 async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
@@ -128,6 +134,91 @@ def _remove_legacy_issues(hass: HomeAssistant) -> None:
     ]
     for issue_id in legacy_issue_ids:
         ir.async_delete_issue(hass, LEGACY_DOMAIN, issue_id)
+
+
+def _legacy_channel_unique_id(server_url: str, channel_id: int) -> str:
+    """Build the historical stable Channel unique ID."""
+    return f"{server_url}|channel:{channel_id}"
+
+
+def _legacy_fallback_unique_id(server_url: str, app_token: str) -> str:
+    """Build the historical non-secret fallback unique ID."""
+    fingerprint = sha256(app_token.encode("utf-8")).hexdigest()[:32]
+    return f"{server_url}|application:{fingerprint}"
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Bring historical entry schemas to v3 before the domain migration."""
+    if entry.version > 3:
+        _LOGGER.error(
+            "Cannot migrate legacy Monita entry %s from unsupported version %s",
+            entry.entry_id,
+            entry.version,
+        )
+        return False
+
+    if entry.version == 3 and entry.minor_version == 0:
+        return True
+
+    data = dict(entry.data)
+    options = dict(entry.options)
+
+    if entry.version < 2:
+        if CONF_SERVER_URL not in data:
+            _LOGGER.error(
+                "Cannot migrate legacy Monita entry %s because server_url is missing",
+                entry.entry_id,
+            )
+            return False
+
+        server_url = str(data[CONF_SERVER_URL]).rstrip("/")
+        data[CONF_SERVER_URL] = server_url
+
+        if channel_id := data.get(CONF_CHANNEL_ID):
+            try:
+                unique_id = _legacy_channel_unique_id(server_url, int(channel_id))
+            except (TypeError, ValueError):
+                _LOGGER.error(
+                    "Cannot migrate legacy Monita entry %s because channel_id is invalid",
+                    entry.entry_id,
+                )
+                return False
+        else:
+            app_token = str(data.get(CONF_APP_TOKEN, ""))
+            if not app_token:
+                _LOGGER.error(
+                    "Cannot migrate legacy Monita entry %s because app_token is missing",
+                    entry.entry_id,
+                )
+                return False
+            unique_id = _legacy_fallback_unique_id(server_url, app_token)
+    else:
+        unique_id = entry.unique_id
+
+    if entry.version < 3 and data.get(CONF_CHANNEL_ID) is not None:
+        try:
+            channel_id = int(data[CONF_CHANNEL_ID])
+        except (TypeError, ValueError):
+            _LOGGER.error(
+                "Cannot migrate legacy Monita entry %s because channel_id is invalid",
+                entry.entry_id,
+            )
+            return False
+        options.setdefault(CONF_CHANNEL_IDS, [channel_id])
+
+    hass.config_entries.async_update_entry(
+        entry,
+        data=data,
+        options=options,
+        unique_id=unique_id,
+        version=3,
+        minor_version=0,
+    )
+    _LOGGER.info(
+        "Migrated historical Monita config entry %s to schema version 3",
+        entry.entry_id,
+    )
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
