@@ -48,6 +48,17 @@ jobs:
           PY
           )"
           test -n "$VERSION"
+          LEGACY_VERSION="$(python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(
+              Path("custom_components/gotify_mu/manifest.json").read_text()
+          )
+          print(manifest["version"])
+          PY
+          )"
+          test "$VERSION" = "$LEGACY_VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
 
@@ -89,6 +100,7 @@ jobs:
 
           roots = [
               (Path("custom_components/monita"), Path("monita")),
+              (Path("custom_components/gotify_mu"), Path("gotify_mu")),
           ]
           with ZipFile("monita-ha.zip", "w", ZIP_DEFLATED) as archive:
               for root, archive_root in roots:
