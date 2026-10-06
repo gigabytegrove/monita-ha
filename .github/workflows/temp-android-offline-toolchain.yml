@@ -1,0 +1,206 @@
+name: Temporary Android Offline Toolchain
+on:
+  push:
+    paths:
+      - ".github/workflows/temp-android-offline-toolchain.yml"
+  workflow_dispatch:
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    env:
+      GRADLE_USER_HOME: /tmp/monita-gradle-home
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Prepare Android SDK 36
+        shell: bash
+        run: |
+          set -euxo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Create dependency warmup project
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/monita-deps/app/src/main/java/com/gigabytegrove/cache
+          mkdir -p /tmp/monita-deps/client/src/main/java/com/gigabytegrove/cache
+          cd /tmp/monita-deps
+
+          cat > settings.gradle.kts <<'EOF'
+          @file:Suppress("UnstableApiUsage")
+          pluginManagement {
+              repositories {
+                  gradlePluginPortal()
+                  google()
+                  mavenCentral()
+              }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+                  maven { url = uri("https://jitpack.io/") }
+              }
+          }
+          rootProject.name = "Monita Android Cache Warmup"
+          include(":app")
+          include(":client")
+          EOF
+
+          cat > build.gradle.kts <<'EOF'
+          plugins {
+              id("com.android.application") version "8.11.0" apply false
+              id("org.jetbrains.kotlin.android") version "2.2.0" apply false
+              id("org.openapi.generator") version "7.19.0" apply false
+          }
+          EOF
+
+          cat > client/build.gradle.kts <<'EOF'
+          plugins {
+              java
+          }
+          java {
+              sourceCompatibility = JavaVersion.VERSION_11
+              targetCompatibility = JavaVersion.VERSION_11
+          }
+          dependencies {
+              implementation("com.squareup.retrofit2:retrofit:2.11.0")
+              implementation("com.squareup.retrofit2:converter-scalars:2.11.0")
+              implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+              implementation("io.swagger.core.v3:swagger-annotations:2.2.28")
+              implementation("com.google.code.findbugs:jsr305:3.0.2")
+              implementation("org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:1.0.1") {
+                  exclude(group = "org.apache.oltu.oauth2", module = "org.apache.oltu.oauth2.common")
+              }
+              implementation("io.gsonfire:gson-fire:1.9.0")
+              implementation("jakarta.annotation:jakarta.annotation-api:1.3.5")
+              testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.3")
+          }
+          EOF
+
+          cat > app/build.gradle.kts <<'EOF'
+          @file:Suppress("UnstableApiUsage")
+          import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+          plugins {
+              id("com.android.application")
+              id("org.jetbrains.kotlin.android")
+              id("org.jmailen.kotlinter") version "5.1.1"
+          }
+
+          android {
+              namespace = "com.gigabytegrove.cache"
+              compileSdk = 36
+              defaultConfig {
+                  applicationId = "com.gigabytegrove.cache"
+                  minSdk = 26
+                  targetSdk = 36
+                  versionCode = 1
+                  versionName = "1"
+              }
+              buildTypes {
+                  register("phoneTest") {
+                      initWith(getByName("release"))
+                      isDebuggable = false
+                  }
+              }
+              compileOptions {
+                  sourceCompatibility = JavaVersion.VERSION_17
+                  targetCompatibility = JavaVersion.VERSION_17
+              }
+              kotlin {
+                  compilerOptions {
+                      jvmTarget.set(JvmTarget.JVM_17)
+                  }
+              }
+              lint {
+                  disable.add("GoogleAppIndexingWarning")
+              }
+          }
+
+          dependencies {
+              testImplementation("junit:junit:4.13.2")
+              implementation(project(":client"))
+              implementation("androidx.appcompat:appcompat:1.7.1")
+              implementation("androidx.biometric:biometric:1.1.0")
+              implementation("androidx.core:core-splashscreen:1.0.1")
+              implementation("com.google.android.material:material:1.12.0")
+              implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+              implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+              implementation("androidx.vectordrawable:vectordrawable:1.2.0")
+              implementation("androidx.preference:preference-ktx:1.2.1")
+              implementation("com.github.cyb3rko:QuickPermissions-Kotlin:1.1.6")
+              implementation("io.coil-kt:coil:2.7.0")
+              implementation("io.coil-kt:coil-svg:2.7.0")
+              implementation("io.noties.markwon:core:4.6.2")
+              implementation("io.noties.markwon:image-coil:4.6.2")
+              implementation("io.noties.markwon:image:4.6.2")
+              implementation("io.noties.markwon:ext-tables:4.6.2")
+              implementation("io.noties.markwon:ext-strikethrough:4.6.2")
+              implementation("org.tinylog:tinylog-api-kotlin:2.7.0")
+              implementation("org.tinylog:tinylog-impl:2.7.0")
+              implementation("com.google.code.gson:gson:2.13.1")
+              implementation("com.squareup.retrofit2:retrofit:3.0.0")
+          }
+          EOF
+
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+            <application android:theme="@style/AppTheme" />
+          </manifest>
+          EOF
+          mkdir -p app/src/main/res/values
+          cat > app/src/main/res/values/styles.xml <<'EOF'
+          <resources><style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar"/></resources>
+          EOF
+          cat > app/src/main/java/com/gigabytegrove/cache/Main.kt <<'EOF'
+          package com.gigabytegrove.cache
+          class Main
+          EOF
+          cat > client/src/main/java/com/gigabytegrove/cache/Dummy.java <<'EOF'
+          package com.gigabytegrove.cache;
+          public final class Dummy {}
+          EOF
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.2"
+
+      - name: Warm Gradle and Android dependency caches
+        shell: bash
+        working-directory: /tmp/monita-deps
+        run: |
+          set -euxo pipefail
+          gradle --no-daemon --refresh-dependencies :app:assemblePhoneTest :app:testDebugUnitTest :app:lintPhoneTest
+          gradle wrapper --gradle-version 8.14.2 --distribution-type bin
+          ./gradlew --no-daemon --version
+
+      - name: Package offline toolchain
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/offline/android-sdk
+          cp -a "$ANDROID_HOME/platforms/android-36" /tmp/offline/android-sdk/
+          mkdir -p /tmp/offline/android-sdk/build-tools
+          cp -a "$ANDROID_HOME/build-tools/36.0.0" /tmp/offline/android-sdk/build-tools/
+          cp -a "$ANDROID_HOME/platform-tools" /tmp/offline/android-sdk/
+          cp -a "$ANDROID_HOME/licenses" /tmp/offline/android-sdk/ || true
+          cp -a "$GRADLE_USER_HOME" /tmp/offline/gradle-home
+          tar -C /tmp/offline -I 'zstd -10 -T0' -cf /tmp/monita-android-offline-toolchain.tar.zst android-sdk gradle-home
+          sha256sum /tmp/monita-android-offline-toolchain.tar.zst | tee /tmp/monita-android-offline-toolchain.sha256
+          ls -lh /tmp/monita-android-offline-toolchain.tar.zst
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: monita-android-offline-toolchain
+          path: |
+            /tmp/monita-android-offline-toolchain.tar.zst
+            /tmp/monita-android-offline-toolchain.sha256
+          retention-days: 1
+          compression-level: 0
