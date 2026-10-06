@@ -1,3 +1,14 @@
+## 1.8.10 — 2026-10-05
+
+### Self-contained legacy-to-Monita migration bootstrap
+
+- Fixes upgrades where HACS installed only the historical `gotify_mu` component directory and the compatibility shim failed before migration with `No module named 'custom_components.monita'`.
+- Bundles the complete canonical Monita integration inside the historical component as a migration payload, so migration no longer depends on a sibling `custom_components/monita` directory already existing.
+- On first legacy setup, installs the canonical Monita component into `custom_components/monita`, migrates the config entry to the `monita` domain, preserves the existing config-entry ID, and immediately schedules canonical setup.
+- Migrates entity-registry platform ownership from `gotify_mu` to `monita` while preserving entity IDs and unique IDs.
+- Migrates device identifiers from the historical integration domain to `monita` and removes historical repair issues.
+- The historical package no longer imports the canonical package before migration, eliminating the startup import failure.
+
 ## 1.8.9 — 2026-10-05
 
 ### Automatic Home Assistant domain migration
