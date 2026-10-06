@@ -9,10 +9,10 @@
     "webhook"
   ],
   "documentation": "https://github.com/gigabytegrove/monita-ha",
+  "import_executor": true,
   "integration_type": "service",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/gigabytegrove/monita-ha/issues",
   "requirements": [],
-  "import_executor": true,
   "version": "1.8.12"
 }
