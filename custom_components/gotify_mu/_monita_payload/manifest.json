@@ -13,5 +13,6 @@
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/gigabytegrove/monita-ha/issues",
   "requirements": [],
-  "version": "1.8.11"
+  "import_executor": true,
+  "version": "1.8.12"
 }
