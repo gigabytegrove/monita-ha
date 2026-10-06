@@ -1,3 +1,13 @@
+## 1.8.12 — 2026-10-05
+
+### Home Assistant compatibility fix for migration bootstrap
+
+- Fixes startup failure on Home Assistant releases that do not expose `async_clear_custom_components_cache` from `homeassistant.loader`.
+- Uses the stable loader cache keys already present in supported Home Assistant releases to invalidate custom-integration discovery after installing canonical Monita.
+- Clears any stale cached lookup for the `monita` domain before scheduling canonical setup.
+- Marks both the legacy migration bootstrap and canonical Monita integration for import-executor loading to avoid event-loop blocking warnings during component import.
+- Keeps the self-contained legacy-to-Monita migration path introduced in 1.8.11.
+
 ## 1.8.11 — 2026-10-05
 
 ### Complete self-contained migration release
