@@ -12,9 +12,9 @@ It provides native Home Assistant notification entities for Monita Channels, ima
 
 ## Current release
 
-**Monita for Home Assistant 2.0.0** is the release candidate on this branch, designed to accompany Monita Server 2.0.0. This becomes the current integration release after the validated `v2.0.0` package is published.
+**Monita for Home Assistant 2.0.0** is the latest published HACS integration release. It supports the Monita Server 2.0.0 release train while retaining narrowly scoped compatibility fallback for older supported servers.
 
-It is designed for the current [Monita server](https://github.com/gigabytegrove/monita) release (**2.0.0**, when published). Direct camera/image delivery into Notification and Chat Channels requires **Monita 1.1.9 or newer**; Monita 1.2.0+ adds per-message collaboration controls and the 24-hour Notification Channel retention policy.
+It is designed for the current [Monita server](https://github.com/gigabytegrove/monita) target release (**2.0.0**). Direct camera/image delivery into Notification and Chat Channels requires **Monita 1.1.9 or newer**; Monita 1.2.0+ adds per-message collaboration controls and the 24-hour Notification Channel retention policy.
 
 Companion client:
 
