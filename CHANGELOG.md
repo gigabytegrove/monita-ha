@@ -1,3 +1,15 @@
+## 2.0.0 — 2026-10-14
+
+### Monita 2.0 companion release
+
+- Prefer the native `/api/monita/v1/capabilities` endpoint for supported server features.
+- Fall back to the historical `/api/mu/v1/capabilities` endpoint **only** for HTTP 404 responses, preserving compatibility with older server installations without masking authentication failures.
+- Add regression tests for native capability discovery and both legacy fallback cases.
+- Preserve the historical `gotify_mu` migration bootstrap and the existing Monita entity, automation and configuration identifiers; do not remove legacy compatibility integrations.
+- Set canonical and migration manifests to the same 2.0.0 version so HACS can install a consistent package.
+
+This release does not claim completed physical Home Assistant-to-server interoperability or historical-installation upgrade testing. Verify against the deployed Monita Server 2.0.0 instance before treating the coordinated Android/server/HA rollout as complete.
+
 ## 1.8.16 — 2026-10-06
 
 ### Finalized duplicate-card cleanup release
