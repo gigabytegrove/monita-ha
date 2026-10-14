@@ -308,17 +308,25 @@ class MonitaClient:
         token = self.client_token or self.app_token
         headers = self._headers(token) if token else {}
         try:
-            async with self.session.get(
-                f"{self.server_url}/api/mu/v1/capabilities",
-                headers=headers,
-                ssl=self.verify_ssl,
-                timeout=self._timeout,
-            ) as response:
-                if response.status == 404:
-                    return {}
-                await self._raise_for_status(response)
-                data = await self._read_json(response)
-                return data if isinstance(data, dict) else {}
+            # Prefer Monita's native route. Older compatible servers only
+            # expose the historical discovery endpoint, so fall back on 404.
+            # Authentication and other errors must not silently fall back.
+            for path in (
+                "/api/monita/v1/capabilities",
+                "/api/mu/v1/capabilities",
+            ):
+                async with self.session.get(
+                    f"{self.server_url}{path}",
+                    headers=headers,
+                    ssl=self.verify_ssl,
+                    timeout=self._timeout,
+                ) as response:
+                    if response.status == 404:
+                        continue
+                    await self._raise_for_status(response)
+                    data = await self._read_json(response)
+                    return data if isinstance(data, dict) else {}
+            return {}
         except MonitaError:
             raise
         except (ClientConnectionError, ClientError, TimeoutError) as err:
