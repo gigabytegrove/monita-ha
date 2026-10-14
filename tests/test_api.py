@@ -190,9 +190,46 @@ async def test_capabilities_discovers_chat_images():
 
     method, url, kwargs = session.calls[0]
     assert method == "GET"
-    assert url == f"{SERVER}/api/mu/v1/capabilities"
+    assert url == f"{SERVER}/api/monita/v1/capabilities"
     assert kwargs["headers"] == {"X-Monita-Key": "client-secret"}
     assert capabilities["features"]["chatImages"] is True
+
+
+async def test_capabilities_falls_back_for_legacy_server():
+    """A 404 on the native route uses legacy discovery without losing credentials."""
+    session = _FakeSession(
+        [
+            _FakeResponse(f"{SERVER}/api/monita/v1/capabilities", {}, 404),
+            {"product": "monita", "features": {"notificationImages": True}},
+        ]
+    )
+    client = MonitaClient(session, SERVER, "", True, "client-secret")
+
+    capabilities = await client.async_capabilities()
+
+    assert [url for _, url, _ in session.calls] == [
+        f"{SERVER}/api/monita/v1/capabilities",
+        f"{SERVER}/api/mu/v1/capabilities",
+    ]
+    assert all(
+        kwargs["headers"] == {"X-Monita-Key": "client-secret"}
+        for _, _, kwargs in session.calls
+    )
+    assert capabilities["features"]["notificationImages"] is True
+
+
+async def test_capabilities_returns_empty_when_both_routes_are_absent():
+    """A pre-capability server remains a supported configuration."""
+    session = _FakeSession(
+        [
+            _FakeResponse(f"{SERVER}/api/monita/v1/capabilities", {}, 404),
+            _FakeResponse(f"{SERVER}/api/mu/v1/capabilities", {}, 404),
+        ]
+    )
+    client = MonitaClient(session, SERVER, "", True, "client-secret")
+
+    assert await client.async_capabilities() == {}
+    assert len(session.calls) == 2
 
 
 async def test_chat_image_send_uses_client_token_and_multipart():
@@ -230,7 +267,7 @@ async def test_capabilities_returns_chat_image_feature():
 
     method, url, kwargs = session.calls[0]
     assert method == "GET"
-    assert url == f"{SERVER}/api/mu/v1/capabilities"
+    assert url == f"{SERVER}/api/monita/v1/capabilities"
     assert kwargs["headers"] == {"X-Monita-Key": "client-secret"}
     assert capabilities["features"]["chatImages"] is True
 
