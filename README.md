@@ -1,5 +1,12 @@
 # Monita for Home Assistant
 
+[![Add to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=gigabytegrove&repository=monita-ha&category=integration)
+[![GitHub stars](https://img.shields.io/github/stars/gigabytegrove/monita-ha?style=flat&label=Stars)](https://github.com/gigabytegrove/monita-ha/stargazers)
+[![GitHub repository](https://img.shields.io/badge/GitHub-Repository-181717?logo=github&logoColor=white)](https://github.com/gigabytegrove/monita-ha)
+[![Open issues](https://img.shields.io/github/issues/gigabytegrove/monita-ha)](https://github.com/gigabytegrove/monita-ha/issues)
+[![Latest GitHub release](https://img.shields.io/github/v/release/gigabytegrove/monita-ha?label=Release)](https://github.com/gigabytegrove/monita-ha/releases)
+[![Donate with PayPal](https://img.shields.io/badge/Donate-PayPal-0070BA?logo=paypal&logoColor=white)](https://paypal.me/gigabytegrove)
+
 <p align="center">
   <img src="branding/MonitaHomeAssistant_Full-01.svg" alt="Monita for Home Assistant" width="720"><br>
   <strong>Monita for Home Assistant</strong>
@@ -402,3 +409,7 @@ Home Assistant and HACS require PNGs on several surfaces, so those raster files 
 
 Branding changes require explicit replacement of the canonical SVG masters and a corresponding branding-lock update.
 
+
+## Support Gigabyte Grove
+
+If this project is useful to you, you can support ongoing Gigabyte Grove development with an optional [PayPal donation](https://paypal.me/gigabytegrove). Donations are appreciated but never required to use this integration.
