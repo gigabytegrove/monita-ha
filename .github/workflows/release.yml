@@ -48,17 +48,6 @@ jobs:
           PY
           )"
           test -n "$VERSION"
-          LEGACY_VERSION="$(python - <<'PY'
-          import json
-          from pathlib import Path
-
-          manifest = json.loads(
-              Path("custom_components/gotify_mu/manifest.json").read_text()
-          )
-          print(manifest["version"])
-          PY
-          )"
-          test "$VERSION" = "$LEGACY_VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
 
@@ -100,7 +89,6 @@ jobs:
 
           roots = [
               (Path("custom_components/monita"), Path("monita")),
-              (Path("custom_components/gotify_mu"), Path("gotify_mu")),
           ]
           with ZipFile("monita-ha.zip", "w", ZIP_DEFLATED) as archive:
               for root, archive_root in roots:
@@ -155,5 +143,5 @@ jobs:
           gh release create "$TAG" \
             monita-ha.zip SHA256SUMS \
             --title "Monita for Home Assistant $TAG" \
-            --notes "See CHANGELOG.md for release details. This release was created from validated commit $VALIDATED_SHA." \
+            --notes "Monita v$VERSION ships only the canonical Home Assistant integration. The retired predecessor component is not bundled. Existing Monita-domain configurations and entity identities are preserved. If your installation still uses the historical predecessor domain, first migrate with v2.0.1 and back up Home Assistant before upgrading. See README.md for instructions. Full changelog: https://github.com/gigabytegrove/monita-ha/blob/main/CHANGELOG.md." \
             "${PRERELEASE[@]}"

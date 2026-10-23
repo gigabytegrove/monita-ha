@@ -5,38 +5,33 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   identity:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Reject legacy-named paths outside compatibility component
+      - name: Verify canonical-only distribution
         shell: bash
         run: |
           set -euo pipefail
-          legacy_path="$(printf '%s%s%s' 'go' 'tify' '_mu')"
-          legacy_dash="$(printf '%s%s%s' 'go' 'tify' '-mu')"
-          matches="$(find . -path './.git' -prune -o -type f -print \
-            | sed 's#^./##' \
-            | grep -Ei "${legacy_path}|${legacy_dash}" \
-            | grep -v "^custom_components/${legacy_path}/" || true)"
-          if [ -n "$matches" ]; then
-            printf '%s\n' "$matches"
-            echo "::error::Legacy HA identity remains in active paths outside the required compatibility component."
-            exit 1
-          fi
-
-      - name: Reject stale active product branding
+          test -f custom_components/monita/manifest.json
+          actual="$(find custom_components -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)"
+          [[ "$actual" == "monita" ]] || { echo "::error::Noncanonical integration folders: $actual"; exit 1; }
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          obj = json.loads(Path("custom_components/monita/manifest.json").read_text())
+          assert obj["domain"] == "monita" and obj["name"] == "Monita"
+          PY
+      - name: Reject retired identifiers in active source
         shell: bash
         run: |
           set -euo pipefail
-          one="$(printf '%s%s' 'Go' 'tify')"
-          matches="$(git grep -nI -E "${one}[ -]MU|${one}-MU" -- . \
-            ':!CHANGELOG.md' ':!README.md' ':!docs/**' ':!custom_components/gotify_mu/**' \
-            ':!.github/workflows/monita-ha-identity-audit.yml' || true)"
-          if [ -n "$matches" ]; then
-            printf '%s\n' "$matches"
-            echo "::error::Stale predecessor product branding remains in active Monita HA code."
+          old="$(printf '%s%s%s' 'go' 'tify' '_mu')"
+          if git grep -nI -- "$old" custom_components/monita scripts tests; then
+            echo "::error::Retired identity exists in active source"
             exit 1
           fi
