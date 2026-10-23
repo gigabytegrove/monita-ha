@@ -33,7 +33,7 @@ Android 0.3.19 is **source-only/development** at this checkpoint; the repository
 ## Home Assistant release gates
 
 - [ ] Exercise fresh HACS installation and *in-place* upgrade of a historical-domain installation; verify config entry, entity IDs, device IDs, automations, secrets and Channel settings survive without a duplicate card.
-- [ ] Keep the migration bootstrap until a safe, tested removal path exists. Do not delete a compatibility component simply for branding.
+- [ ] Before upgrading any installation that still has predecessor-domain entries, back it up and migrate it with Monita HA v2.0.1; verify canonical `monita` entries first. Canonical-only v2.0.2 does not perform this retired-domain migration.
 - [ ] Verify native pairing, repair, revoke, both event directions, reconnect/re-auth, LLT-free mode, diagnostics and redaction against the final server.
 - [ ] Verify `monita.send` message controls, image entity/camera/URL uploads (real bytes), server capability refresh and legacy fallback.
 - [ ] Pass integration tests and HACS package installation using the final release zip.

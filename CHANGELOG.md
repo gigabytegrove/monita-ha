@@ -1,3 +1,15 @@
+## 2.0.2 — 2026-10-23
+
+### Canonical-only Home Assistant distribution
+
+- Remove the historical integration directory and its bundled migration payload from active source and newly built HACS release ZIPs.
+- Keep only `custom_components/monita` for fresh HACS installations and upgrades.
+- Retire migration-only code, duplicate branding aliases and obsolete validation rules; add a single-component distribution regression check.
+- Preserve the canonical `monita` domain, configuration, devices, entities, notification actions and supported Monita server protocol fallbacks.
+- For installations not yet migrated to the canonical domain, require a backup and the v2.0.1 migration path **before** updating to v2.0.2. This release does not automatically migrate entries from the retired domain.
+
+**Purpose:** Eliminate obsolete integration identifiers and duplicate packages; this is not a claim of new feature or hardware testing.
+
 ## 2.0.0 — 2026-10-14
 
 ### Monita 2.0 companion release

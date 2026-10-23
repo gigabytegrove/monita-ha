@@ -19,7 +19,7 @@ It provides native Home Assistant notification entities for Monita Channels, ima
 
 ## Current release
 
-**Monita for Home Assistant 2.0.0** is the latest published HACS integration release. It supports the Monita Server 2.0.0 release train while retaining narrowly scoped compatibility fallback for older supported servers.
+**Monita for Home Assistant 2.0.2** is the canonical-only HACS release. It supports the Monita Server 2.0.0 release train while retaining narrowly scoped compatibility fallback for older supported servers.
 
 It is designed for the current [Monita server](https://github.com/gigabytegrove/monita) target release (**2.0.0**). Direct camera/image delivery into Notification and Chat Channels requires **Monita 1.1.9 or newer**; Monita 1.2.0+ adds per-message collaboration controls and the 24-hour Notification Channel retention policy.
 
@@ -92,7 +92,7 @@ Monita now has its own canonical Home Assistant identity:
 - component directory: `custom_components/monita`
 - canonical automation action: `monita.send`
 
-Existing installations that were created under the historical domain continue to load through a compatibility component so upgrades do not break stored config entries, entity unique IDs, credentials, or existing automations. New installations use `monita` only. The compatibility component is not the canonical Monita implementation and can be removed in a future major release after migration coverage is complete.
+**v2.0.2 ships only the canonical `monita` integration.** New HACS installs no longer install a predecessor component or display a duplicate integration. Existing Home Assistant installations already migrated to domain `monita` keep their config entry, device/entity identifiers and automations. **If you still have a configuration entry under the historical predecessor domain, do not upgrade directly to v2.0.2.** Make a Home Assistant backup, first use/retain v2.0.1 to complete the one-way domain migration, confirm the working **Monita** entry and automations, and only then upgrade to v2.0.2. Once verified migrated, remove any leftover retired integration directory from `/config/custom_components/`, then restart Home Assistant. Deleting the old component before migration may prevent the old entry from loading.
 
 The underlying HTTP/WebSocket API retains documented legacy compatibility contracts. Literal legacy field names, headers, domains, and wire identifiers that remain are compatibility anchors, not the active product name.
 
