@@ -1,11 +1,15 @@
 """Outbound Monita event filtering and image source allowlist tests."""
+
 from types import SimpleNamespace
 
 import pytest
 
 from custom_components.monita.security import (
-    DEFAULT_NATIVE_EVENTS, parse_native_events, parse_image_hosts,
-    sanitize_event_data, validate_image_url,
+    DEFAULT_NATIVE_EVENTS,
+    parse_image_hosts,
+    parse_native_events,
+    sanitize_event_data,
+    validate_image_url,
 )
 
 def test_event_names_are_explicit_bounded():

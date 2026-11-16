@@ -26,15 +26,15 @@ from .const import (
     DOMAIN,
     REQUEST_TIMEOUT_SECONDS,
 )
+from .repairs import (
+    async_create_native_bridge_repair_issue,
+    async_delete_native_bridge_repair_issue,
+)
 from .security import (
     DEFAULT_NATIVE_EVENTS,
     MAX_EVENT_BODY_BYTES,
     parse_native_events,
     sanitize_event_data,
-)
-from .repairs import (
-    async_create_native_bridge_repair_issue,
-    async_delete_native_bridge_repair_issue,
 )
 
 _LOGGER = logging.getLogger(__name__)

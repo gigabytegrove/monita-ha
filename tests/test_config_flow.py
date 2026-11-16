@@ -3,7 +3,7 @@
 import pytest
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResultType, InvalidData
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.monita.config_flow import MonitaOptionsFlow
 from custom_components.monita.const import (
