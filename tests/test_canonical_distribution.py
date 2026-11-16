@@ -11,7 +11,7 @@ def test_single_component() -> None:
     manifest = json.loads((components / "monita" / "manifest.json").read_text())
     assert manifest["domain"] == "monita"
     assert manifest["name"] == "Monita"
-    assert manifest["version"] == "2.0.2"
+    assert manifest["version"] == "2.0.3"
 
 
 def test_release_build_excludes_retired_domain() -> None:

@@ -889,4 +889,5 @@ async def test_image_url_honors_entry_tls_setting(hass):
         hass,
         "https://camera.example.test/current.jpg?token=secret",
         verify_ssl=False,
+        allowed_hosts=frozenset(),
     )

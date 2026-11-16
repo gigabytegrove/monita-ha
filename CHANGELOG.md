@@ -1,3 +1,14 @@
+## 2.0.3 — 2026-11-16
+
+### Security and Home Assistant 2026.11.1
+
+- Native pairing now listens only for administrator-approved Home Assistant event types. Defaults cover state changes and automation/script events; customize the exact event allowlist in Configure.
+- Redact secret and location-bearing event data, minimize state objects and bound outgoing payload size. Reject oversized inbound payloads and restrict incoming events to the Monita namespace.
+- Require explicit approved image source hostnames, prohibit HTTP redirects and reject loopback/metadata addresses. Entity-backed camera/image notifications need no approval.
+- Add security policy regression tests and CodeQL scanning, and qualify against Core 2026.11.1 in CI.
+- Restrict release publication to successful first-party main branch validation.
+- Preserve pairing credentials, channels, notification entities and existing image_entity actions. Existing native automations relying on custom event types may require opt-in configuration.
+
 ## 2.0.2 — 2026-10-23
 
 ### Canonical-only Home Assistant distribution

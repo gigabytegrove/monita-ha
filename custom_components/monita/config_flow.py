@@ -42,6 +42,8 @@ from .const import (
     CONF_FORCE_LOCAL_REMOVE,
     CONF_HOME_ASSISTANT_URL,
     CONF_INBOUND_ENABLED,
+    CONF_IMAGE_URL_HOSTS,
+    CONF_NATIVE_EVENTS,
     CONF_NATIVE_INTEGRATION_ID,
     CONF_NATIVE_PAIRING_CODE,
     CONF_NATIVE_SECRET,
@@ -64,6 +66,7 @@ from .native import (
     remove_native_pairing_data,
 )
 from .repairs import async_delete_native_bridge_repair_issue
+from .security import DEFAULT_NATIVE_EVENTS, parse_image_hosts, parse_native_events
 
 
 def _channel_selector_options(channels: list[MonitaChannel]) -> list[dict[str, str]]:
@@ -589,6 +592,8 @@ class MonitaOptionsFlow(config_entries.OptionsFlowWithReload):
             else "Not paired"
         )
         menu = ["settings", "native_pairing"]
+        if native_pairing_is_configured(dict(self.config_entry.data)):
+            menu.append("native_events")
         if self.config_entry.data.get(CONF_CLIENT_TOKEN):
             menu.insert(0, "channels")
         return self.async_show_menu(
@@ -708,6 +713,31 @@ class MonitaOptionsFlow(config_entries.OptionsFlowWithReload):
         return self.async_show_form(
             step_id="settings",
             data_schema=vol.Schema(schema_dict),
+        )
+
+    async def async_step_native_events(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure exact outbound events and trusted image URL hostnames."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            try:
+                events = parse_native_events(user_input[CONF_NATIVE_EVENTS])
+                hosts = parse_image_hosts(user_input[CONF_IMAGE_URL_HOSTS])
+            except (ValueError, KeyError):
+                errors["base"] = "invalid_security_settings"
+            else:
+                options = dict(self.config_entry.options)
+                options[CONF_NATIVE_EVENTS] = ",".join(events)
+                options[CONF_IMAGE_URL_HOSTS] = ",".join(sorted(hosts))
+                return self.async_create_entry(data=options)
+        return self.async_show_form(
+            step_id="native_events",
+            data_schema=vol.Schema({
+                vol.Required(CONF_NATIVE_EVENTS, default=self.config_entry.options.get(CONF_NATIVE_EVENTS, DEFAULT_NATIVE_EVENTS)): TextSelector(),
+                vol.Required(CONF_IMAGE_URL_HOSTS, default=self.config_entry.options.get(CONF_IMAGE_URL_HOSTS, "")): TextSelector(),
+            }),
+            errors=errors,
         )
 
     async def async_step_native_pairing(

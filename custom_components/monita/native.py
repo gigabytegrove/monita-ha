@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 import secrets
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -13,7 +14,6 @@ from typing import Any
 
 from aiohttp import ClientConnectionError, ClientError, ClientSession, ClientTimeout, web
 from homeassistant.components import webhook
-from homeassistant.const import MATCH_ALL
 from homeassistant.core import Context, Event, HomeAssistant, callback
 from homeassistant.helpers.json import json_bytes
 
@@ -26,6 +26,7 @@ from .const import (
     DOMAIN,
     REQUEST_TIMEOUT_SECONDS,
 )
+from .security import DEFAULT_NATIVE_EVENTS, MAX_EVENT_BODY_BYTES, parse_native_events, sanitize_event_data
 from .repairs import (
     async_create_native_bridge_repair_issue,
     async_delete_native_bridge_repair_issue,
@@ -231,8 +232,13 @@ async def async_handle_native_webhook(
         return web.Response(status=401)
 
     try:
-        payload = await request.json()
-    except (json.JSONDecodeError, ValueError, TypeError):
+        if request.content_length is not None and request.content_length > MAX_EVENT_BODY_BYTES:
+            return web.Response(status=413)
+        raw = await request.content.read(MAX_EVENT_BODY_BYTES + 1)
+        if len(raw) > MAX_EVENT_BODY_BYTES:
+            return web.Response(status=413)
+        payload = json.loads(raw)
+    except (json.JSONDecodeError, ValueError, TypeError, UnicodeDecodeError):
         return web.Response(status=400)
 
     if not isinstance(payload, dict):
@@ -241,7 +247,7 @@ async def async_handle_native_webhook(
     data = payload.get("data", {})
     if (
         not isinstance(event_type, str)
-        or not event_type.strip()
+        or re.fullmatch(r"monita_[a-zA-Z0-9_]{1,80}", event_type.strip()) is None
         or not isinstance(data, dict)
     ):
         return web.Response(status=400)
@@ -326,6 +332,7 @@ class MonitaNativeBridge:
         event_path: str,
         webhook_id: str,
         entry_id: str | None = None,
+        allowed_event_types: tuple[str, ...] | None = None,
     ) -> None:
         self._hass = hass
         self._session = session
@@ -336,6 +343,10 @@ class MonitaNativeBridge:
         self._event_path = event_path
         self._webhook_id = webhook_id
         self._entry_id = entry_id or webhook_id
+        self._allowed_event_types = (
+            parse_native_events(DEFAULT_NATIVE_EVENTS)
+            if allowed_event_types is None else tuple(allowed_event_types)
+        )
         self._queue: asyncio.Queue[Event[Any]] = asyncio.Queue(
             maxsize=_NATIVE_QUEUE_MAXSIZE
         )
@@ -434,9 +445,16 @@ class MonitaNativeBridge:
             local_only=False,
             allowed_methods=["POST"],
         )
-        self._remove_listener = self._hass.bus.async_listen(
-            MATCH_ALL, self._async_queue_event
-        )
+        subscriptions = [
+            self._hass.bus.async_listen(name, self._async_queue_event)
+            for name in self._allowed_event_types
+        ]
+
+        def remove_subscriptions() -> None:
+            for unsubscribe in subscriptions:
+                unsubscribe()
+
+        self._remove_listener = remove_subscriptions
         self._worker = self._hass.async_create_background_task(
             self._async_worker(), f"Monita native bridge: {self._name}"
         )
@@ -458,7 +476,10 @@ class MonitaNativeBridge:
 
     @callback
     def _async_queue_event(self, event: Event[Any]) -> None:
-        if self._stopped or event.context.id in self._suppress_context_ids:
+        if (
+            self._stopped or event.event_type not in self._allowed_event_types
+            or event.context.id in self._suppress_context_ids
+        ):
             return
         try:
             self._queue.put_nowait(event)
@@ -498,7 +519,7 @@ class MonitaNativeBridge:
         """Post an event with bounded retry/backoff for transient failures."""
         try:
             body = json_bytes(
-                {"eventType": event.event_type, "data": dict(event.data)}
+                {"eventType": event.event_type, "data": sanitize_event_data(dict(event.data))}
             )
         except (TypeError, ValueError) as err:
             self.dropped_events += 1
@@ -511,6 +532,11 @@ class MonitaNativeBridge:
                 self._name,
                 err,
             )
+            return False
+
+        if len(body) > MAX_EVENT_BODY_BYTES:
+            self.dropped_events += 1
+            self._async_mark_degraded("Native event payload exceeded size limit")
             return False
 
         delay = _NATIVE_RETRY_BASE_SECONDS

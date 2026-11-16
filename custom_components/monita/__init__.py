@@ -39,6 +39,8 @@ from .const import (
     CONF_CLIENT_TOKEN,
     CONF_DEFAULT_PRIORITY,
     CONF_INBOUND_ENABLED,
+    CONF_IMAGE_URL_HOSTS,
+    CONF_NATIVE_EVENTS,
     CONF_NATIVE_EVENT_PATH,
     CONF_NATIVE_SECRET,
     CONF_NATIVE_WEBHOOK_ID,
@@ -57,6 +59,7 @@ from .helpers import channel_unique_id, fallback_unique_id
 from .media import async_acquire_entity_image, async_acquire_url_image
 from .native import MonitaNativeBridge, native_pairing_is_configured
 from .repairs import async_delete_native_bridge_repair_issue
+from .security import DEFAULT_NATIVE_EVENTS, parse_image_hosts, parse_native_events
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -499,6 +502,9 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
                     hass,
                     image_url,
                     verify_ssl=selected.data.get(CONF_VERIFY_SSL, True),
+                    allowed_hosts=parse_image_hosts(
+                        selected.options.get(CONF_IMAGE_URL_HOSTS, "")
+                    ),
                 )
 
             attachment_ids: list[int] | None = None
@@ -795,6 +801,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: MonitaConfigEntry) -> bo
             event_path=data[CONF_NATIVE_EVENT_PATH],
             webhook_id=data[CONF_NATIVE_WEBHOOK_ID],
             entry_id=entry.entry_id,
+            allowed_event_types=parse_native_events(
+                entry.options.get(CONF_NATIVE_EVENTS, DEFAULT_NATIVE_EVENTS)
+            ),
         )
         runtime.native_bridge = native_bridge
         native_bridge.async_start()

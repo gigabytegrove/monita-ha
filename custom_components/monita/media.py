@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from urllib.parse import urlsplit
 
 from aiohttp import ClientConnectionError, ClientError, ClientTimeout
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.util import dt as dt_util
+
+from .security import validate_image_url
 
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
 IMAGE_DOWNLOAD_TIMEOUT_SECONDS = 20
@@ -135,11 +136,13 @@ async def async_acquire_url_image(
     url: str,
     *,
     verify_ssl: bool = True,
+    allowed_hosts: frozenset[str] = frozenset(),
 ) -> MonitaImage:
     """Download and validate an HTTP(S) image without exposing its source URL."""
-    parsed = urlsplit(url)
-    if parsed.scheme.lower() not in {"http", "https"} or not parsed.netloc:
-        raise HomeAssistantError("Image URL must use HTTP or HTTPS")
+    try:
+        validate_image_url(url, allowed_hosts)
+    except ValueError as err:
+        raise HomeAssistantError(str(err)) from None
 
     session = async_get_clientsession(hass)
     timeout = ClientTimeout(total=IMAGE_DOWNLOAD_TIMEOUT_SECONDS)
@@ -147,7 +150,7 @@ async def async_acquire_url_image(
     try:
         async with session.get(
             url,
-            allow_redirects=True,
+            allow_redirects=False,
             ssl=verify_ssl,
             timeout=timeout,
         ) as response:

@@ -91,7 +91,8 @@
         "menu_options": {
           "settings": "Notifications and inbound messages",
           "native_pairing": "Native Home Assistant pairing",
-          "channels": "Manage Channels"
+          "channels": "Manage Channels",
+          "native_events": "Native bridge security and approved image hosts"
         }
       },
       "settings": {
@@ -146,6 +147,18 @@
         "data_description": {
           "channel_ids": "Push-capable Channels receive a Home Assistant notification entity. Read-only Channels can still be included for inbound messages."
         }
+      },
+      "native_events": {
+        "title": "Native bridge security",
+        "description": "Only specified event types leave Home Assistant; image URLs are disabled until the hostname is approved. Native camera/image entities need no URL host approval.",
+        "data": {
+          "native_outbound_events": "Allowed outgoing HA event types",
+          "approved_image_hosts": "Approved image URL hostnames"
+        },
+        "data_description": {
+          "native_outbound_events": "Comma-separated exact event names (no wildcard); empty disables outbound native events.",
+          "approved_image_hosts": "Comma-separated exact hostnames or LAN IP addresses, not complete URLs. Empty disables image_url but not image_entity."
+        }
       }
     },
     "error": {
@@ -158,7 +171,8 @@
       "unpair_auth_failed": "Monita rejected the stored native bridge credential. Repair pairing first, or use force local removal if the remote connection has already been replaced.",
       "unpair_not_found": "Monita could not find the native bridge revoke endpoint or connection. Upgrade Monita, or use force local removal only if you have removed the remote connection separately.",
       "cannot_unpair": "Could not reach Monita to revoke the native bridge. Try again, or use force local removal only if you will clean up the remote connection separately.",
-      "unpair_failed": "Monita could not revoke the native bridge."
+      "unpair_failed": "Monita could not revoke the native bridge.",
+      "invalid_security_settings": "Enter at most 16 exact event names and hostnames. Wildcards and full URLs are not allowed."
     }
   },
   "entity": {
