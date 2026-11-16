@@ -1,9 +1,9 @@
 """Strict outbound event and inbound image policy for Monita."""
 from __future__ import annotations
 
-from ipaddress import ip_address
 import math
 import re
+from ipaddress import ip_address
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -60,7 +60,13 @@ def validate_image_url(url: str, approved: frozenset[str]) -> None:
         addr = ip_address(host)
     except ValueError:
         return
-    if addr.is_loopback or addr.is_link_local or addr.is_multicast or addr.is_unspecified or addr.is_reserved:
+    if (
+        addr.is_loopback
+        or addr.is_link_local
+        or addr.is_multicast
+        or addr.is_unspecified
+        or addr.is_reserved
+    ):
         raise ValueError("Unsafe image URL address")
 
 

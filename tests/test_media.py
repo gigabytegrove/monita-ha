@@ -111,7 +111,9 @@ async def test_http_image_is_downloaded_into_home_assistant(hass):
         "custom_components.monita.media.async_get_clientsession",
         return_value=session,
     ):
-        result = await async_acquire_url_image(hass, source, allowed_hosts=frozenset({'camera.example.test'}))
+        result = await async_acquire_url_image(
+            hass, source, allowed_hosts=frozenset({"camera.example.test"})
+        )
 
     assert result.content == JPEG
     assert result.content_type == "image/jpeg"
@@ -138,7 +140,9 @@ async def test_oversized_http_image_is_rejected_before_upload(hass):
         ),
         pytest.raises(HomeAssistantError, match="Image exceeded upload limit"),
     ):
-        await async_acquire_url_image(hass, source, allowed_hosts=frozenset({'camera.example.test'}))
+        await async_acquire_url_image(
+            hass, source, allowed_hosts=frozenset({"camera.example.test"})
+        )
 
 
 async def test_non_image_mime_is_rejected(hass):
@@ -159,7 +163,9 @@ async def test_non_image_mime_is_rejected(hass):
         ),
         pytest.raises(HomeAssistantError, match="Unsupported image type"),
     ):
-        await async_acquire_url_image(hass, source, allowed_hosts=frozenset({'camera.example.test'}))
+        await async_acquire_url_image(
+            hass, source, allowed_hosts=frozenset({"camera.example.test"})
+        )
 
 
 async def test_html_pretending_to_be_jpeg_is_rejected(hass):
@@ -180,7 +186,9 @@ async def test_html_pretending_to_be_jpeg_is_rejected(hass):
         ),
         pytest.raises(HomeAssistantError, match="Unsupported image type"),
     ):
-        await async_acquire_url_image(hass, source, allowed_hosts=frozenset({'camera.example.test'}))
+        await async_acquire_url_image(
+            hass, source, allowed_hosts=frozenset({"camera.example.test"})
+        )
 
 
 async def test_source_url_secrets_are_not_exposed_in_errors_or_logs(hass, caplog):
@@ -199,7 +207,9 @@ async def test_source_url_secrets_are_not_exposed_in_errors_or_logs(hass, caplog
         ),
         pytest.raises(HomeAssistantError) as error,
     ):
-        await async_acquire_url_image(hass, source, allowed_hosts=frozenset({'camera.example.test'}))
+        await async_acquire_url_image(
+            hass, source, allowed_hosts=frozenset({"camera.example.test"})
+        )
 
     assert "super-secret" not in str(error.value)
     assert "super-secret" not in caplog.text

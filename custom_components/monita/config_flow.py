@@ -41,8 +41,8 @@ from .const import (
     CONF_DEFAULT_PRIORITY,
     CONF_FORCE_LOCAL_REMOVE,
     CONF_HOME_ASSISTANT_URL,
-    CONF_INBOUND_ENABLED,
     CONF_IMAGE_URL_HOSTS,
+    CONF_INBOUND_ENABLED,
     CONF_NATIVE_EVENTS,
     CONF_NATIVE_INTEGRATION_ID,
     CONF_NATIVE_PAIRING_CODE,
@@ -734,8 +734,16 @@ class MonitaOptionsFlow(config_entries.OptionsFlowWithReload):
         return self.async_show_form(
             step_id="native_events",
             data_schema=vol.Schema({
-                vol.Required(CONF_NATIVE_EVENTS, default=self.config_entry.options.get(CONF_NATIVE_EVENTS, DEFAULT_NATIVE_EVENTS)): TextSelector(),
-                vol.Required(CONF_IMAGE_URL_HOSTS, default=self.config_entry.options.get(CONF_IMAGE_URL_HOSTS, "")): TextSelector(),
+                vol.Required(
+                    CONF_NATIVE_EVENTS,
+                    default=self.config_entry.options.get(
+                        CONF_NATIVE_EVENTS, DEFAULT_NATIVE_EVENTS
+                    ),
+                ): TextSelector(),
+                vol.Required(
+                    CONF_IMAGE_URL_HOSTS,
+                    default=self.config_entry.options.get(CONF_IMAGE_URL_HOSTS, ""),
+                ): TextSelector(),
             }),
             errors=errors,
         )
