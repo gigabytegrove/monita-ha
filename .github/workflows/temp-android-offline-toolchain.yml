@@ -223,7 +223,7 @@ jobs:
           split -b 280M -d -a 1 /tmp/monita-gradle-home.tar.zst /tmp/monita-gradle-home.part-
           ls -lh /tmp/monita-android-sdk.tar.zst /tmp/monita-gradle-home.tar.zst /tmp/monita-gradle-home.part-* /tmp/monita-gradle-modules.tar.zst
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: monita-android-sdk
           path: |
@@ -232,28 +232,28 @@ jobs:
           retention-days: 1
           compression-level: 0
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: monita-gradle-home-part-0
           path: /tmp/monita-gradle-home.part-0
           retention-days: 1
           compression-level: 0
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: monita-gradle-home-part-1
           path: /tmp/monita-gradle-home.part-1
           retention-days: 1
           compression-level: 0
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: monita-gradle-home-checksum
           path: /tmp/monita-gradle-home.sha256
           retention-days: 1
           compression-level: 0
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: monita-gradle-modules
           path: |

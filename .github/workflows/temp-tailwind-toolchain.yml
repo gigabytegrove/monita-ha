@@ -31,7 +31,7 @@ jobs:
           tar -C /tmp/monita-tailwind -I 'zstd -10 -T0' -cf /tmp/monita-tailwind-node-modules.tar.zst node_modules package.json package-lock.json
           sha256sum /tmp/monita-tailwind-node-modules.tar.zst | tee /tmp/monita-tailwind-node-modules.sha256
           ls -lh /tmp/monita-tailwind-node-modules.tar.zst
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: monita-tailwind-node-modules
           path: |
