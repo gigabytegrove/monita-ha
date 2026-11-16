@@ -19,7 +19,7 @@ It provides native Home Assistant notification entities for Monita Channels, ima
 
 ## Current release
 
-**Monita for Home Assistant 2.0.3** is the canonical-only HACS release. It supports the Monita Server 2.0.0 release train while retaining narrowly scoped compatibility fallback for older supported servers.
+**Monita for Home Assistant 2.0.4** is the canonical-only HACS release. It supports the Monita Server 2.0.0 release train while retaining narrowly scoped compatibility fallback for older supported servers.
 
 It is designed for the current [Monita server](https://github.com/gigabytegrove/monita) target release (**2.0.0**). Direct camera/image delivery into Notification and Chat Channels requires **Monita 1.1.9 or newer**; Monita 1.2.0+ adds per-message collaboration controls and the 24-hour Notification Channel retention policy.
 
@@ -92,7 +92,7 @@ Monita now has its own canonical Home Assistant identity:
 - component directory: `custom_components/monita`
 - canonical automation action: `monita.send`
 
-**v2.0.3 ships only the canonical `monita` integration.** New HACS installs no longer install a predecessor component or display a duplicate integration. Existing Home Assistant installations already migrated to domain `monita` keep their config entry, device/entity identifiers and automations. **If you still have a configuration entry under the historical predecessor domain, do not upgrade directly to v2.0.3.** Make a Home Assistant backup, first use/retain v2.0.1 to complete the one-way domain migration, confirm the working **Monita** entry and automations, and only then upgrade to v2.0.3. Once verified migrated, remove any leftover retired integration directory from `/config/custom_components/`, then restart Home Assistant. Deleting the old component before migration may prevent the old entry from loading.
+**v2.0.4 ships only the canonical `monita` integration.** New HACS installs no longer install a predecessor component or display a duplicate integration. Existing Home Assistant installations already migrated to domain `monita` keep their config entry, device/entity identifiers and automations. **If you still have a configuration entry under the historical predecessor domain, do not upgrade directly to v2.0.4.** Make a Home Assistant backup, first use/retain v2.0.1 to complete the one-way domain migration, confirm the working **Monita** entry and automations, and only then upgrade to v2.0.4. Once verified migrated, remove any leftover retired integration directory from `/config/custom_components/`, then restart Home Assistant. Deleting the old component before migration may prevent the old entry from loading.
 
 The underlying HTTP/WebSocket API retains documented legacy compatibility contracts. Literal legacy field names, headers, domains, and wire identifiers that remain are compatibility anchors, not the active product name.
 
@@ -417,3 +417,7 @@ If this project is useful to you, you can support ongoing Gigabyte Grove develop
 ## Native bridge security (2.0.3)
 
 A native pairing now subscribes only to explicitly configured outbound event names instead of everything on Home Assistant's event bus. Defaults are `state_changed`, `automation_triggered`, `script_started`. Configure additional exact names under **Monita → Configure → Native bridge security** if existing Monita automations require custom HA events. Sensitive fields, including credentials and location identifiers, are removed from event data. State objects are minimized to entity ID and state. Inbound native events must use the `monita_` prefix and fit within 64 KiB. Normal notifications, camera/image entity attachments, and Monita message streams remain unchanged. Before upgrading an automation relying on custom native events, add its event name to the allowlist immediately afterward.
+
+### Image URL settings without native pairing (2.0.4)
+
+The **Outgoing events and image URL security** option is available for any configured Monita instance, including notification-only setups with no native bridge. Approve the exact hostname or LAN IP serving an `image_url` attachment. `image_entity` camera notifications do not require this option. Changing the policy reloads Monita while retaining its channels, credentials and entity IDs.

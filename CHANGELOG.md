@@ -1,3 +1,10 @@
+## 2.0.4 — 2026-11-16
+
+- Make image URL host authorization configurable for notification-only Monita setups without native pairing.
+- Clarify security option wording: only paired native bridges subscribe to outgoing HA events, while image URL allowlists apply to all integrations.
+- Add an unpaired-server regression test. All 2.0.3 controls, credentials, channels and notification entities remain unchanged.
+- Qualify against Home Assistant Core 2026.11.1, with no native event payload or server API changes in this follow-up.
+
 ## 2.0.3 — 2026-11-16
 
 ### Security and Home Assistant 2026.11.1

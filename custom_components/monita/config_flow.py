@@ -591,9 +591,8 @@ class MonitaOptionsFlow(config_entries.OptionsFlowWithReload):
             if native_pairing_is_configured(dict(self.config_entry.data))
             else "Not paired"
         )
-        menu = ["settings", "native_pairing"]
-        if native_pairing_is_configured(dict(self.config_entry.data)):
-            menu.append("native_events")
+        # Image URL policies apply even without native bridge pairing.
+        menu = ["settings", "native_pairing", "native_events"]
         if self.config_entry.data.get(CONF_CLIENT_TOKEN):
             menu.insert(0, "channels")
         return self.async_show_menu(

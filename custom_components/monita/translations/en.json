@@ -92,7 +92,7 @@
           "settings": "Notifications and inbound messages",
           "native_pairing": "Native Home Assistant pairing",
           "channels": "Manage Channels",
-          "native_events": "Native bridge security and approved image hosts"
+          "native_events": "Outgoing events and image URL security"
         }
       },
       "settings": {
@@ -149,8 +149,8 @@
         }
       },
       "native_events": {
-        "title": "Native bridge security",
-        "description": "Only specified event types leave Home Assistant; image URLs are disabled until the hostname is approved. Native camera/image entities need no URL host approval.",
+        "title": "Outbound events and image URL security",
+        "description": "Approve image URL hostnames for all Monita configurations. Outbound Home Assistant event subscriptions only apply to paired native bridges. Camera/image entities need no URL host approval.",
         "data": {
           "native_outbound_events": "Allowed outgoing HA event types",
           "approved_image_hosts": "Approved image URL hostnames"

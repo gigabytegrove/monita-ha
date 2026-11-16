@@ -13,6 +13,16 @@ from custom_components.monita.security import (
 )
 
 
+def test_unpaired_integrations_expose_image_security():
+    from pathlib import Path
+
+    source = (
+        Path(__file__).resolve().parents[1]
+        / "custom_components/monita/config_flow.py"
+    ).read_text(encoding="utf-8")
+    assert 'menu = ["settings", "native_pairing", "native_events"]' in source
+
+
 def test_event_names_are_explicit_bounded():
     assert "state_changed" in parse_native_events(DEFAULT_NATIVE_EVENTS)
     assert parse_native_events("state_changed,state_changed") == ("state_changed",)
