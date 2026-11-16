@@ -12,6 +12,7 @@ from custom_components.monita.security import (
     validate_image_url,
 )
 
+
 def test_event_names_are_explicit_bounded():
     assert "state_changed" in parse_native_events(DEFAULT_NATIVE_EVENTS)
     assert parse_native_events("state_changed,state_changed") == ("state_changed",)
